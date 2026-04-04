@@ -74,7 +74,7 @@
   }
 
   .dark {
-    --background: 222 47% 6%;
+    --background: 222 58% 7%;
     --foreground: 214 32% 91%;
 
     --card: 217 33% 14%;
@@ -98,40 +98,43 @@
     --destructive: 0 63% 31%;
     --destructive-foreground: 214 32% 91%;
 
-    --border: 217 19% 27%;
+    --border: 215 19% 17%;
     --input: 217 19% 27%;
     --ring: 234 89% 74%;
 
-    --sidebar-background: 222 47% 8%;
+    --sidebar-background: 222 58% 7%;
     --sidebar-foreground: 218 11% 65%;
     --sidebar-primary: 234 89% 74%;
     --sidebar-primary-foreground: 222 47% 6%;
     --sidebar-accent: 217 33% 14%;
     --sidebar-accent-foreground: 234 89% 74%;
-    --sidebar-border: 217 19% 27%;
+    --sidebar-border: 215 19% 17%;
     --sidebar-ring: 234 89% 74%;
 
     /* DevNote custom tokens dark */
     --problem: 0 84% 60%;
     --problem-bg: 0 63% 15%;
-    --problem-border: 0 84% 60%;
+    --problem-border: 0 50% 25%;
     --solution: 142 71% 45%;
-    --solution-bg: 142 50% 12%;
-    --solution-border: 142 71% 45%;
+    --solution-bg: 160 50% 12%;
+    --solution-border: 160 60% 20%;
     --understanding: 234 89% 74%;
     --understanding-bg: 234 50% 15%;
-    --understanding-border: 234 89% 74%;
-    --code-bg: 217 33% 12%;
+    --understanding-border: 239 84% 67%;
+    --code-bg: 222 58% 7%;
     --tag-bg: 234 50% 15%;
     --tag-text: 234 89% 74%;
-    --note-list-bg: 222 47% 8%;
+    --note-list-bg: 222 58% 7%;
     --note-list-hover: 217 33% 14%;
     --note-list-active: 234 50% 15%;
+    --note-detail-bg: 224 64% 5%;
     --difficulty-1: 142 71% 45%;
     --difficulty-2: 160 64% 43%;
     --difficulty-3: 48 96% 53%;
     --difficulty-4: 25 95% 53%;
     --difficulty-5: 0 84% 60%;
+
+    --panel-divider: 213 31% 65%;
   }
 }
 

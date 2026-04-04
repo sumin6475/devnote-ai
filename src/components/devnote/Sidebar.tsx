@@ -23,7 +23,10 @@ const comingSoon = [
 
 const Sidebar = ({ currentView, onViewChange, onNewNote }: SidebarProps) => {
   return (
-    <aside className="flex h-full w-[220px] flex-col border-r border-sidebar-border bg-sidebar">
+    <aside
+      className="flex h-full w-[220px] flex-col bg-sidebar"
+      style={{ borderRight: "1px solid rgba(148, 163, 184, 0.08)" }}
+    >
       {/* Logo */}
       <div className="flex items-center gap-2 px-5 py-5">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
@@ -81,7 +84,7 @@ const Sidebar = ({ currentView, onViewChange, onNewNote }: SidebarProps) => {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-sidebar-border px-4 py-3">
+      <div className="px-4 py-3" style={{ borderTop: "1px solid rgba(148, 163, 184, 0.08)" }}>
         <p className="text-xs text-muted-foreground">DevNote v1.0 MVP</p>
       </div>
     </aside>
