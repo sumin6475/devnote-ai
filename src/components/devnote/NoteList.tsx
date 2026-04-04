@@ -28,7 +28,7 @@ const NoteList = ({ notes, selectedNoteId, onSelectNote, searchQuery }: NoteList
     : notes;
 
   return (
-    <div className="flex h-full w-[340px] flex-col border-r border-border bg-note-list-bg">
+    <div className="flex h-full flex-col">
       <div className="border-b border-border px-4 py-3">
         <h2 className="text-sm font-semibold text-foreground">
           All Notes{" "}
