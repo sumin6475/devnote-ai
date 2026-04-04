@@ -58,7 +58,7 @@ const Index = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background dark">
+    <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar currentView={view} onViewChange={setView} onNewNote={handleNewNote} />
 
       {/* Middle Column */}
