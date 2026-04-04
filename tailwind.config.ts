@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["Inter", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -56,6 +60,30 @@ export default {
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
+        },
+        problem: {
+          DEFAULT: "hsl(var(--problem))",
+          bg: "hsl(var(--problem-bg))",
+          border: "hsl(var(--problem-border))",
+        },
+        solution: {
+          DEFAULT: "hsl(var(--solution))",
+          bg: "hsl(var(--solution-bg))",
+          border: "hsl(var(--solution-border))",
+        },
+        understanding: {
+          DEFAULT: "hsl(var(--understanding))",
+          bg: "hsl(var(--understanding-bg))",
+          border: "hsl(var(--understanding-border))",
+        },
+        "note-list": {
+          bg: "hsl(var(--note-list-bg))",
+          hover: "hsl(var(--note-list-hover))",
+          active: "hsl(var(--note-list-active))",
+        },
+        tag: {
+          bg: "hsl(var(--tag-bg))",
+          text: "hsl(var(--tag-text))",
         },
       },
       borderRadius: {
