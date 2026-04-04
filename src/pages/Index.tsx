@@ -40,7 +40,6 @@ const Index = () => {
     codeSnippet?: string;
     projectId?: string;
   }) => {
-    // Mock AI analysis
     const mockTags = ["React", "학습", "개발"];
     const newNote: Note = {
       id: `n${Date.now()}`,
@@ -61,8 +60,11 @@ const Index = () => {
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar currentView={view} onViewChange={setView} onNewNote={handleNewNote} />
 
-      {/* Middle Column */}
-      <div className="flex h-full w-[340px] flex-col border-r border-border bg-note-list-bg">
+      {/* Middle Column — panel divider is near-invisible */}
+      <div
+        className="flex h-full w-[340px] flex-col bg-note-list-bg"
+        style={{ borderRight: "1px solid rgba(148, 163, 184, 0.08)" }}
+      >
         {view === "search" && (
           <SearchPanel query={searchQuery} onQueryChange={setSearchQuery} />
         )}
@@ -88,7 +90,7 @@ const Index = () => {
       </div>
 
       {/* Right Column */}
-      <div className="flex flex-1 flex-col bg-background">
+      <div className="flex flex-1 flex-col">
         {isCreating ? (
           <NoteForm onSave={handleSaveNote} onCancel={() => setIsCreating(false)} />
         ) : (
