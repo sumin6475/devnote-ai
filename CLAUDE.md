@@ -10,6 +10,7 @@
 
 **이 파일이 커버하는 것**:
 - DevNote 프로젝트 개요와 핵심 컨셉
+- 노트 타입 2가지 (Debug Note + Learning Note)
 - 기술 스택과 금지 목록
 - 프로젝트 폴더 구조
 - 코드 스타일 (네이밍, React 패턴, API 통신 패턴)
@@ -37,22 +38,57 @@
 DevNote = 개발자의 학습 순간을 캡처하고, AI가 맥락을 붙여주고, 경험치로 쌓아주는 도구
 
 ### 핵심 차별점 (이 3가지를 항상 기억)
-1. **"배움"이 저장 단위** — 코드도, 활동도, 스니펫도 아닌 "문제 → 해결 → 이해" 경험이 기록 단위
+1. **"배움"이 저장 단위** — 코드도, 활동도, 스니펫도 아닌 학습 경험이 기록 단위
 2. **AI가 주니어를 도와줌** — 뭘 기록해야 할지 모르는 사람에게 자동 카테고리/관련 개념을 붙여줌
 3. **성장이 시각화됨** — 기록이 스킬트리에 매핑되어 "내가 어디까지 왔는지" 보여줌
 
-### 노트 하나의 구조
-- **유저 입력 (3줄)**: Problem / Solution / Understanding
-- **AI 자동 생성**: Tags, Category (roadmap.sh 기반), Related Concepts, Difficulty
-
 ### 개발 단계
-- Phase 1 (MVP): 노트 CRUD + AI 자동 태그 + 검색 + 프로젝트 그룹핑
+- Phase 1 (MVP): 노트 CRUD (2가지 타입) + AI 자동 태그 + 검색 + 프로젝트 그룹핑
 - Phase 1.5: Embeddings + pgvector Semantic Search
 - Phase 2: Skill Tree Dashboard + AI Code Review + Interview Questions + Auth
 - Phase 3: Community, 블로그 내보내기, 팀 리뷰 모드
 
 ### Parent Project
 DevNote는 CodeReview AI 프로젝트의 Phase 1이다. 같은 monorepo에서 Phase 2로 Code Review 기능을 확장할 예정.
+
+---
+
+## 노트 타입 (2가지)
+
+DevNote는 두 가지 종류의 학습을 캡처한다. New Note 생성 시 타입을 선택.
+
+### 타입 1: Debug Note — "에러에서 배운 것"
+에러/버그를 해결하면서 배운 경험을 기록.
+
+**유저 입력:**
+- **Problem**: 무엇이 문제였는지 (예: "og:image 넣었는데 일부 사이트에서 썸네일 안 나옴")
+- **Solution**: 어떻게 해결했는지 (예: "property 대신 name도 체크 + twitter:image fallback")
+- **Understanding**: 왜 그런 건지 (예: "사이트마다 OG 태그 구현이 다름")
+- **Code Snippet** (선택): 관련 코드 블록
+
+**AI 자동 생성:**
+- Tags (3~5개), Category (roadmap.sh 기반), Related Concepts (1~3개), Difficulty (1~5)
+
+### 타입 2: Learning Note — "구현하면서 배운 것"
+기능을 만들거나 개념을 학습하면서 알게 된 조각 지식들을 기록. 에러가 아니라 "오늘 이거 만들면서 이런 걸 알게 됐어"라는 학습 조각들.
+
+**유저 입력:**
+- **What I Built**: 뭘 만들었는지 / 뭘 하려고 했는지 (예: "스와이프로 페이지 넘기는 기능")
+- **What I Learned**: 배운 것들 (여러 줄, 리스트 형태)
+  - 예: "useRef는 렌더링 안 되는 값 저장용"
+  - 예: "e.touches[0].clientX로 터치 좌표 가져옴"
+  - 예: "스와이프 vs 탭은 이동 거리 threshold로 구분"
+- **Source** (선택): 어디서 배웠는지 (프로젝트명, 강의, 문서 URL 등)
+- **Code Snippet** (선택): 관련 코드 블록
+
+**AI 자동 생성:**
+- Tags, Category, Related Concepts, Difficulty (Debug Note와 동일한 AI 분석)
+
+### 두 타입의 공통점
+- 둘 다 AI가 자동으로 태그/카테고리/관련 개념을 붙여줌
+- 둘 다 같은 스킬트리에 매핑됨 (Phase 2)
+- 둘 다 같은 검색/필터에서 조회 가능
+- 노트 리스트에서 타입 구분 라벨로 표시
 
 ---
 
@@ -123,12 +159,12 @@ codereview-ai/
 │   ├── Sidebar.tsx
 │   ├── NoteList.tsx
 │   ├── NoteDetail.tsx
-│   ├── NoteForm.tsx
+│   ├── NoteForm.tsx            # Debug Note / Learning Note 폼 (타입 선택)
 │   └── ui/                     # 기본 UI 요소 (Button, Input 등)
 ├── lib/                        # 공유 유틸
 │   ├── supabase.ts             # Supabase client (중앙화)
 │   ├── prompts/                # AI 프롬프트 분리 관리
-│   │   ├── autoTag.ts          # 자동 태그 생성 프롬프트
+│   │   ├── autoTag.ts          # 자동 태그 생성 프롬프트 (두 타입 모두)
 │   │   └── codeReview.ts       # 코드 리뷰 프롬프트 (Phase 2)
 │   └── utils/                  # 헬퍼 함수
 ├── supabase/                   # DB 마이그레이션, 스키마
@@ -248,10 +284,14 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 | Column | Type | Description |
 |--------|------|-------------|
 | id | uuid PK (gen_random_uuid()) | 고유 ID |
-| problem | text NOT NULL | 무엇이 문제였는지 |
-| solution | text NOT NULL | 어떻게 해결했는지 |
-| understanding | text NOT NULL | 왜 그런 건지 |
-| code_snippet | text (nullable) | 관련 코드 블록 |
+| note_type | text NOT NULL | 'debug' 또는 'learning' |
+| problem | text (nullable) | Debug: 무엇이 문제였는지 |
+| solution | text (nullable) | Debug: 어떻게 해결했는지 |
+| understanding | text (nullable) | Debug: 왜 그런 건지 |
+| what_i_built | text (nullable) | Learning: 뭘 만들었는지 / 하려고 했는지 |
+| learnings | text[] (nullable) | Learning: 배운 것들 배열 |
+| source | text (nullable) | Learning: 어디서 배웠는지 |
+| code_snippet | text (nullable) | 관련 코드 블록 (공통, 선택) |
 | tags | text[] | AI 생성 태그 배열 |
 | category | text | AI 생성 카테고리 경로 |
 | related_concepts | jsonb | AI 생성 관련 개념 [{name, why}] |
@@ -261,6 +301,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 | embedding | vector (nullable) | Phase 1.5 Semantic Search용 (nullable로 미리 추가) |
 | created_at | timestamptz (now()) | 생성일 |
 | updated_at | timestamptz (now()) | 수정일 |
+
+**note_type별 필수/선택 필드:**
+- `debug` 타입: problem, solution, understanding 필수. what_i_built, learnings, source는 null.
+- `learning` 타입: what_i_built, learnings 필수. problem, solution, understanding은 null.
+- code_snippet은 두 타입 모두 선택.
 
 **projects 테이블:**
 | Column | Type | Description |
@@ -295,27 +340,34 @@ export const claude = new Anthropic({
 });
 ```
 
-### 자동 태그 생성 (Phase 1 MVP 핵심)
+### 자동 태그 생성 — 두 타입 통합
 ```typescript
 // app/api/ai/analyze/route.ts
-import { claude } from '@/lib/claude';
-import { NextRequest, NextResponse } from 'next/server';
-
 export async function POST(request: NextRequest) {
-  try {
-    const { problem, solution, understanding } = await request.json();
+  const { noteType, problem, solution, understanding, whatIBuilt, learnings } = await request.json();
 
-    const message = await claude.messages.create({
-      model: 'claude-haiku-4-5-20251001',  // 비용 절약, 빠른 응답
-      max_tokens: 1024,
-      messages: [{
-        role: 'user',
-        content: `아래 개발 노트를 분석해서 JSON으로만 응답해줘.
+  let noteContent = '';
 
-## 개발 노트
+  if (noteType === 'debug') {
+    noteContent = `## 디버그 노트
 - 문제: ${problem}
 - 해결: ${solution}
-- 이해: ${understanding}
+- 이해: ${understanding}`;
+  } else {
+    noteContent = `## 학습 노트
+- 만든 것: ${whatIBuilt}
+- 배운 것:
+${learnings.map(l => `  - ${l}`).join('\n')}`;
+  }
+
+  const message = await claude.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 1024,
+    messages: [{
+      role: 'user',
+      content: `아래 개발 노트를 분석해서 JSON으로만 응답해줘.
+
+${noteContent}
 
 ## 응답 형식 (JSON만, 다른 텍스트 없이)
 {
@@ -326,26 +378,18 @@ export async function POST(request: NextRequest) {
   ],
   "difficulty": 1-5
 }`
-      }]
-    });
+    }]
+  });
 
-    // 응답에서 JSON 파싱
-    const text = message.content[0].type === 'text' ? message.content[0].text : '';
-    const parsed = JSON.parse(text);
-
-    return NextResponse.json({ success: true, data: parsed });
-  } catch (err) {
-    return NextResponse.json(
-      { success: false, error: err.message },
-      { status: 500 }
-    );
-  }
+  const text = message.content[0].type === 'text' ? message.content[0].text : '';
+  const parsed = JSON.parse(text);
+  return NextResponse.json({ success: true, data: parsed });
 }
 ```
 
 ### AI 프롬프트 관리
 - 프롬프트는 lib/prompts/ 폴더에 분리
-- 시스템 프롬프트와 유저 프롬프트를 별도 함수로 관리
+- Debug Note와 Learning Note는 같은 API 엔드포인트에서 noteType으로 분기
 - Phase 2에서 코드 리뷰 프롬프트, 답변 평가 프롬프트 추가 예정
 
 ---
@@ -354,7 +398,7 @@ export async function POST(request: NextRequest) {
 
 ### 전체 톤
 - SnippetsLab, massCode, VS Code 같은 개발자 도구 느낌
-- DevNote만의 학습 구조(Problem/Solution/Understanding)가 명확히 드러나는 UI
+- DevNote만의 학습 구조가 명확히 드러나는 UI
 - 이모티콘 사용 금지 — 라벨은 텍스트 + 색상만으로 구분
 
 ### 컬러 팔레트 (Indigo 기반, Light/Dark 모드)
@@ -373,7 +417,7 @@ export async function POST(request: NextRequest) {
 
 Typography: Inter (UI), JetBrains Mono (코드)
 
-### Problem / Solution / Understanding 블록
+### Debug Note 블록 스타일
 
 핵심 원칙: 전체 border 금지. 배경 opacity + 좌측 accent border만 사용.
 
@@ -407,6 +451,34 @@ border-radius: 0 10px 10px 0;
 padding: 14px 18px;
 ```
 
+### Learning Note 블록 스타일
+
+**What I Built 블록:**
+```css
+/* 라벨: color: #38bdf8 (sky blue), uppercase, letter-spacing: 0.06em */
+background: rgba(56, 189, 248, 0.06);
+border: none;
+border-left: 3px solid #0284c7;
+border-radius: 0 10px 10px 0;
+padding: 14px 18px;
+```
+
+**What I Learned 블록:**
+```css
+/* 라벨: color: #a78bfa (violet), uppercase, letter-spacing: 0.06em */
+background: rgba(167, 139, 250, 0.06);
+border: none;
+border-left: 3px solid #7c3aed;
+border-radius: 0 10px 10px 0;
+padding: 14px 18px;
+/* 내부 항목은 bullet list 형태로 표시 */
+```
+
+### 노트 리스트에서 타입 구분
+- Debug Note: 리스트 카드에 "DEBUG" 라벨 (작고, muted, 텍스트만)
+- Learning Note: 리스트 카드에 "LEARNING" 라벨 (작고, muted, 텍스트만)
+- 또는 좌측에 얇은 컬러 바로 구분 (debug = red계열, learning = sky blue계열)
+
 ### 태그 스타일
 solid border 금지. 배경 opacity + 미세한 border만 사용.
 ```css
@@ -424,8 +496,8 @@ font-size: 11px; font-weight: 500; padding: 2px 10px; border-radius: 20px;
 
 ### 레이아웃 (3컬럼)
 - Left: Sidebar (210px) — Notes, Search, Projects + Coming Soon (Skill Map, Dashboard, Code Review)
-- Center: Note List (380px) — 노트 목록 + 미리보기 + AI 태그
-- Right: Note Detail (flex) — 3줄 구조 + AI 컨텍스트
+- Center: Note List (380px) — 노트 목록 + 미리보기 + AI 태그 + 타입 표시
+- Right: Note Detail (flex) — 타입에 따라 Debug 또는 Learning 블록 + AI 컨텍스트
 
 ### Anti-Generic 디자인 규칙
 - 기본 Tailwind 팔레트 그대로 쓰지 말 것 → 위에 정의된 커스텀 컬러 사용
@@ -435,7 +507,7 @@ font-size: 11px; font-weight: 500; padding: 2px 10px; border-radius: 20px;
 - 서피스 레이어링 시스템 사용 (sidebar → list → detail 각각 배경 톤 다르게)
 - 간격: 의도적이고 일관된 spacing 토큰 사용
 
-### 코드 스니펫 블록
+### 코드 스니펫 블록 (두 타입 공통)
 ```css
 background: rgba(15, 23, 42, 0.8);
 border: 1px solid rgba(148, 163, 184, 0.08);
@@ -447,13 +519,21 @@ line-height: 1.7;
 color: #94a3b8;
 ```
 
-### AI Context 섹션
+### AI Context 섹션 (두 타입 공통)
 ```css
 background: rgba(99, 102, 241, 0.04);
 border: 1px solid rgba(99, 102, 241, 0.08);
 border-radius: 12px;
 padding: 18px 22px;
 ```
+
+### New Note 폼
+- 상단에 타입 선택: "Debug" / "Learning" 토글 또는 탭
+- 선택한 타입에 따라 입력 필드가 바뀜
+  - Debug: Problem, Solution, Understanding 텍스트 영역 3개
+  - Learning: What I Built 텍스트 영역 1개 + What I Learned 리스트 입력 (동적으로 항목 추가/삭제) + Source 텍스트 영역 1개
+- Code Snippet은 두 타입 모두 선택적 입력
+- "저장" 누르면 AI 분석 → 태그/카테고리 자동 생성 → DB 저장
 
 ---
 
