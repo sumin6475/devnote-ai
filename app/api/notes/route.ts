@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       skill_tags: body.skillTags ?? [],
       topic_tags: body.topicTags ?? [],
       category: body.category ?? '',
-      related_concepts: body.relatedConcepts ?? [],
+      related_concepts: body.relatedConcepts ?? null,
       project_id: body.projectId ?? null,
     };
 

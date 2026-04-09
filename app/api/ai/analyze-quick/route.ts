@@ -55,7 +55,6 @@ export async function POST(request: NextRequest) {
         skillTags: parsed.skillTags ?? [],
         topicTags: parsed.topicTags ?? [],
         category: parsed.category ?? '',
-        relatedConcepts: parsed.relatedConcepts ?? [],
       },
     });
   } catch (err: unknown) {

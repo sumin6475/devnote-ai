@@ -30,7 +30,7 @@ export default function RootLayout({
       className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex">
+      <body className="h-screen flex overflow-hidden">
         <Sidebar />
         <div
           className="flex-1 flex overflow-hidden"

@@ -8,7 +8,6 @@ export const ANALYZE_SYSTEM_PROMPT = `You are an AI that analyzes developer lear
 2. Skill Tags: select ONLY from the canonical list below. If the note content does not clearly relate to any skill in the list, return an empty array. Do NOT force a match.
 3. Topic Tags: generate 3~5 specific, searchable keywords that describe what this note is concretely about. These are free-form.
 4. Category: use format "Domain > Area > Specific" (e.g., "Frontend > Web Standards > Open Graph").
-5. Related Concepts: suggest 1~3 concepts to explore next. Each must include a practical reason ("why") tied to real-world usage.
 
 ## Canonical Skill Tag List (for skillTags field ONLY)
 
@@ -40,10 +39,7 @@ Foundation:
 {
   "skillTags": ["only from canonical list above, or empty array"],
   "topicTags": ["free-form", "specific", "keywords"],
-  "category": "Domain > Area > Specific",
-  "relatedConcepts": [
-    { "name": "Concept Name", "why": "One sentence — why this matters in practice" }
-  ]
+  "category": "Domain > Area > Specific"
 }`;
 
 // 노트 데이터를 받아 유저 메시지 문자열로 변환

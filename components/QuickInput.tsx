@@ -1,8 +1,10 @@
 'use client';
 
-// Quick Input 박스 — 홈 화면 중앙, 자유 텍스트 입력 + 프로젝트 선택
+// Quick Input — Bolt 스타일: gradient border, premium 인풋, SendHorizontal 아이콘
 
 import { useState, useRef, useEffect } from 'react';
+import { SendHorizontal, Plus } from 'lucide-react';
+import { GlassButton } from '@/components/ui/glass-button';
 import ProjectDropdown from '@/components/ProjectDropdown';
 import type { Project } from '@/lib/types';
 
@@ -23,7 +25,7 @@ const QuickInput = ({ projects, onSave, onCreateProject }: QuickInputProps) => {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = 'auto';
-    el.style.height = Math.min(Math.max(el.scrollHeight, 100), 300) + 'px';
+    el.style.height = Math.min(Math.max(el.scrollHeight, 80), 200) + 'px';
   }, [text]);
 
   const handleSave = async () => {
@@ -40,9 +42,10 @@ const QuickInput = ({ projects, onSave, onCreateProject }: QuickInputProps) => {
     }
   };
 
-  // Cmd/Ctrl+Enter로 저장
+  // Enter = Save, Shift+Enter = 줄바꿈
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
       handleSave();
     }
   };
@@ -50,59 +53,83 @@ const QuickInput = ({ projects, onSave, onCreateProject }: QuickInputProps) => {
   const isValid = text.trim().length > 0;
 
   return (
-    <div
-      className="w-full max-w-[560px] rounded-xl overflow-hidden"
-      style={{
-        background: '#1E293B',
-        border: '1px solid rgba(148, 163, 184, 0.15)',
-      }}
-    >
-      {/* 텍스트 영역 */}
-      <textarea
-        ref={textareaRef}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder="Paste what you learned, a bug you fixed, or anything..."
-        className="w-full resize-none outline-none text-[16px] leading-[1.6]"
+    <div className="w-full relative">
+      {/* gradient border 효과 — 외부 래퍼 */}
+      <div
+        className="absolute pointer-events-none rounded-[16px]"
         style={{
-          background: 'transparent',
-          border: 'none',
-          padding: '20px 20px 12px',
-          color: '#F1F5F9',
-          fontFamily: 'inherit',
-          minHeight: 100,
-          maxHeight: 300,
-          boxSizing: 'border-box',
+          inset: -1,
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.08), transparent)',
         }}
       />
 
-      {/* 하단 바 — 프로젝트 드롭다운 + Save */}
+      {/* 인풋 컨테이너 */}
       <div
-        className="flex items-center justify-between px-4 py-3"
-        style={{ borderTop: '1px solid rgba(148, 163, 184, 0.08)' }}
+        className="relative rounded-[16px]"
+        style={{
+          background: 'rgba(30, 41, 59, 0.6)',
+          border: '1px solid rgba(148, 163, 184, 0.1)',
+          boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 4px 24px rgba(0,0,0,0.3)',
+        }}
       >
-        <ProjectDropdown
-          selectedProjectId={projectId}
-          onSelect={setProjectId}
-          projects={projects}
-          onCreateProject={onCreateProject}
+        {/* 텍스트 영역 */}
+        <textarea
+          ref={textareaRef}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Paste what you learned, a bug you fixed, or anything..."
+          className="w-full resize-none outline-none text-[15px] leading-[1.6]"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            padding: '20px 20px 12px',
+            color: '#fff',
+            fontFamily: 'inherit',
+            minHeight: 80,
+            maxHeight: 200,
+            boxSizing: 'border-box',
+          }}
         />
 
-        <button
-          onClick={handleSave}
-          disabled={!isValid || saving}
-          className="text-[13px] font-semibold px-5 py-[7px] rounded-lg cursor-pointer border-none hover:opacity-90 active:scale-[0.98]"
-          style={{
-            background: isValid ? '#6366f1' : '#334155',
-            color: isValid ? '#fff' : '#64748b',
-            opacity: isValid ? 1 : 0.5,
-            fontFamily: 'inherit',
-            transition: 'opacity 0.15s, transform 0.15s',
-          }}
+        {/* 하단 바 */}
+        <div
+          className="flex items-center justify-between px-4 py-3"
+          style={{ borderTop: '1px solid rgba(148, 163, 184, 0.06)' }}
         >
-          {saving ? 'Saving...' : 'Save'}
-        </button>
+          <div className="flex items-center gap-2">
+            {/* + 버튼 (장식용, 추후 파일 첨부) */}
+            <div
+              className="flex items-center justify-center rounded-full"
+              style={{
+                width: 28,
+                height: 28,
+                background: 'rgba(255,255,255,0.06)',
+              }}
+            >
+              <Plus style={{ width: 14, height: 14, color: '#8a8a8f' }} />
+            </div>
+
+            {/* 프로젝트 드롭다운 */}
+            <ProjectDropdown
+              selectedProjectId={projectId}
+              onSelect={setProjectId}
+              projects={projects}
+              onCreateProject={onCreateProject}
+            />
+          </div>
+
+          {/* Save 버튼 — GlassButton */}
+          <GlassButton
+            size="sm"
+            contentClassName="flex items-center gap-2"
+            onClick={handleSave}
+            disabled={!isValid || saving}
+          >
+            {saving ? 'Saving...' : 'Save'}
+            <SendHorizontal className="h-4 w-4" />
+          </GlassButton>
+        </div>
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ export const ANALYZE_QUICK_SYSTEM_PROMPT = `You are an AI that analyzes develope
 The user has written a quick, unstructured note. Your job:
 1. Determine if this is a DEBUG note (problem → solution → understanding) or a LEARNING note (built something → learned from it).
 2. Extract structured fields based on the type.
-3. Generate metadata (tags, category, concepts).
+3. Generate metadata (tags, category).
 
 ## Rules
 - ALWAYS respond in English, regardless of input language.
@@ -50,10 +50,7 @@ Foundation:
   "learnings": ["extracted learning 1", "learning 2"] or null,
   "skillTags": [],
   "topicTags": [],
-  "category": "Domain > Area > Specific",
-  "relatedConcepts": [
-    { "name": "Concept", "why": "Why it matters" }
-  ]
+  "category": "Domain > Area > Specific"
 }`;
 
 export const buildQuickUserMessage = (rawContent: string): string => {

@@ -1,6 +1,6 @@
 'use client';
 
-// 홈 화면 — Quick Note 입력 + 최근 노트 카드
+// 홈 화면 — Bolt 스타일: indigo glow + gradient title + premium input
 
 import { useState, useEffect } from 'react';
 import QuickInput from '@/components/QuickInput';
@@ -34,7 +34,6 @@ const HomePage = () => {
     fetchData();
   }, []);
 
-  // Quick Note 저장 → DB 저장 + 비동기 AI 분석
   const handleQuickSave = async (rawContent: string, projectId: string | null) => {
     const res = await fetch('/api/notes', {
       method: 'POST',
@@ -46,7 +45,6 @@ const HomePage = () => {
         skillTags: [],
         topicTags: [],
         category: '',
-        relatedConcepts: [],
       }),
     });
     const data = await res.json();
@@ -77,7 +75,6 @@ const HomePage = () => {
           skillTags: aiData.data.skillTags,
           topicTags: aiData.data.topicTags,
           category: aiData.data.category,
-          relatedConcepts: aiData.data.relatedConcepts,
         }),
       });
       const updateData = await updateRes.json();
@@ -89,7 +86,6 @@ const HomePage = () => {
     }
   };
 
-  // 프로젝트 생성
   const handleCreateProject = async (name: string): Promise<Project> => {
     const res = await fetch('/api/projects', {
       method: 'POST',
@@ -103,26 +99,54 @@ const HomePage = () => {
   };
 
   return (
-    <main className="flex-1 flex flex-col items-center justify-center overflow-y-auto" style={{ background: '#0b1120' }}>
+    <main
+      className="flex-1 flex flex-col items-center justify-center overflow-y-auto relative"
+      style={{ background: '#0f0f12' }}
+    >
+      {/* Indigo glow 배경 */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle at 50% 30%, rgba(99,102,241,0.15) 0%, rgba(99,102,241,0.05) 30%, transparent 60%)',
+        }}
+      />
+
       {loading ? (
         <div style={{ color: '#475569' }}>Loading...</div>
       ) : (
-        <>
+        <div className="relative z-10 flex flex-col items-center w-full max-w-[600px] px-6">
+          {/* 타이틀 */}
           <h1
-            className="text-[20px] font-semibold tracking-[-0.02em] mb-8"
+            className="text-[28px] font-bold tracking-[-0.02em] mb-2 text-center"
             style={{ color: '#F8FAFC' }}
           >
-            What did you learn today?
+            What did you{' '}
+            <span
+              className="italic"
+              style={{
+                background: 'linear-gradient(180deg, #818CF8, #A5B4FC)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              learn
+            </span>
+            {' '}today?
           </h1>
+          <p className="text-[14px] mb-8" style={{ color: '#64748B' }}>
+            Capture it before it fades
+          </p>
 
+          {/* Quick Input */}
           <QuickInput
             projects={projects}
             onSave={handleQuickSave}
             onCreateProject={handleCreateProject}
           />
 
+          {/* Recent Notes */}
           <RecentNotes notes={notes} projects={projects} />
-        </>
+        </div>
       )}
     </main>
   );

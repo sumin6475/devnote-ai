@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { Home as HomeIcon } from 'lucide-react';
 import Icon from '@/components/ui/Icons';
 
 const MENU_ITEMS = [
@@ -43,11 +44,11 @@ const Sidebar = () => {
 
   return (
     <aside
-      className="flex flex-col py-5 shrink-0"
+      className="flex flex-col py-5 shrink-0 h-screen overflow-y-auto"
       style={{
         width: 210,
         minWidth: 210,
-        background: '#0f172a',
+        background: 'rgba(15, 23, 42, 0.85)',
         borderRight: '1px solid rgba(148,163,184,0.08)',
       }}
     >
@@ -94,12 +95,17 @@ const Sidebar = () => {
                 transition: 'opacity 0.15s, transform 0.15s',
               }}
             >
-              <Icon name={item.icon} color={active ? '#818cf8' : item.disabled ? '#334155' : '#64748b'} />
+              {item.label === 'Home' ? (
+                <HomeIcon style={{ width: 18, height: 18, color: active ? '#818cf8' : '#64748b' }} />
+              ) : (
+                <Icon name={item.icon} color={active ? '#818cf8' : item.disabled ? '#334155' : '#64748b'} />
+              )}
               {item.label}
               {item.showCount && noteCount > 0 && (
                 <span
                   className="ml-auto text-[10px] font-bold px-[7px] py-[1px] rounded-[10px]"
                   style={{ background: '#818cf8', color: '#0f172a' }}
+                  suppressHydrationWarning
                 >
                   {noteCount}
                 </span>

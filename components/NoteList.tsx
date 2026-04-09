@@ -1,5 +1,8 @@
-// 노트 목록 컴포넌트 — 380px 고정, 프로젝트 필터 지원
+'use client';
 
+// 노트 목록 컴포넌트 — 380px 고정, 프로젝트 필터 + 타입 필터 지원
+
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Tag from '@/components/ui/Tag';
 import {
@@ -31,12 +34,35 @@ const NOTE_TYPE_COLOR: Record<string, string> = {
   quick: '#a78bfa',
 };
 
+type TypeFilter = 'all' | 'quick' | 'debug' | 'learning';
+
 const NoteList = ({ notes, selectedIndex, onSelect, filterProject, onNewNote }: NoteListProps) => {
   const router = useRouter();
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
+
+  // 타입별 카운트
+  const counts = {
+    all: notes.length,
+    quick: notes.filter((n) => n.noteType === 'quick').length,
+    debug: notes.filter((n) => n.noteType === 'debug').length,
+    learning: notes.filter((n) => n.noteType === 'learning').length,
+  };
+
+  // 필터 적용된 노트
+  const filteredNotes = typeFilter === 'all'
+    ? notes
+    : notes.filter((n) => n.noteType === typeFilter);
+
+  const TABS: { key: TypeFilter; label: string }[] = [
+    { key: 'all', label: 'All' },
+    { key: 'quick', label: 'Quick' },
+    { key: 'debug', label: 'Debug' },
+    { key: 'learning', label: 'Learning' },
+  ];
 
   return (
     <section
-      className="flex flex-col"
+      className="flex flex-col h-screen shrink-0"
       style={{
         width: 380,
         minWidth: 380,
@@ -44,9 +70,9 @@ const NoteList = ({ notes, selectedIndex, onSelect, filterProject, onNewNote }: 
         background: '#0f172a',
       }}
     >
-      {/* 헤더 — 프로젝트 필터 시 프로젝트 이름 표시 */}
+      {/* 헤더 */}
       <div
-        className="flex items-center gap-2 px-5 pt-[18px] pb-[14px]"
+        className="flex items-center gap-2 px-5 pt-[18px] pb-[14px] shrink-0"
         style={{ borderBottom: '1px solid rgba(148,163,184,0.06)' }}
       >
         {filterProject ? (
@@ -99,15 +125,45 @@ const NoteList = ({ notes, selectedIndex, onSelect, filterProject, onNewNote }: 
         )}
       </div>
 
-      {/* 노트 리스트 */}
+      {/* 타입 필터 탭 */}
+      <div
+        className="flex gap-0 px-4 shrink-0"
+        style={{ borderBottom: '1px solid rgba(148,163,184,0.06)' }}
+      >
+        {TABS.map((tab) => {
+          // 카운트 0인 탭은 숨김
+          if (counts[tab.key] === 0 && tab.key !== 'all') return null;
+          const active = typeFilter === tab.key;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setTypeFilter(tab.key)}
+              className="text-[11px] font-medium px-3 py-[10px] cursor-pointer border-none"
+              style={{
+                background: 'transparent',
+                color: active ? '#818cf8' : '#475569',
+                borderBottom: active ? '2px solid #818cf8' : '2px solid transparent',
+                fontFamily: 'inherit',
+                transition: 'color 0.1s',
+              }}
+            >
+              {tab.label} ({counts[tab.key]})
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 노트 리스트 — 독립 스크롤 */}
       <div className="flex-1 overflow-y-auto px-[10px] py-[6px]">
-        {notes.map((note, i) => {
-          const isSelected = selectedIndex === i;
+        {filteredNotes.map((note) => {
+          // 원래 notes 배열에서의 인덱스로 selectedIndex 비교
+          const originalIndex = notes.indexOf(note);
+          const isSelected = selectedIndex === originalIndex;
           const tagColors = getTagColors(note.topicTags);
           return (
             <div
               key={note.id}
-              onClick={() => onSelect(i)}
+              onClick={() => onSelect(originalIndex)}
               className="rounded-[10px] mb-[3px] cursor-pointer hover:opacity-90 active:scale-[0.99]"
               style={{
                 padding: '14px 14px 12px',
@@ -163,11 +219,6 @@ const NoteList = ({ notes, selectedIndex, onSelect, filterProject, onNewNote }: 
                 {note.topicTags.map((tag, j) => (
                   <Tag key={tag} label={tag} colorKey={tagColors[j]} />
                 ))}
-                {note.relatedConcepts && note.relatedConcepts.length > 0 && (
-                  <span className="text-[10px] ml-[2px]" style={{ color: '#475569' }}>
-                    +{note.relatedConcepts.length}
-                  </span>
-                )}
                 <span className="ml-auto text-[11px]" style={{ color: '#334155' }}>
                   {formatDate(note.createdAt)}
                 </span>

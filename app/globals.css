@@ -58,3 +58,66 @@ body {
 .shimmer {
   animation: shimmer 1.5s ease-in-out infinite;
 }
+
+/* Glass Button */
+.glass-button-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.glass-button {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.6) 0%,
+    rgba(99, 102, 241, 0.4) 50%,
+    rgba(129, 140, 248, 0.5) 100%
+  );
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+}
+
+.glass-button:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.7) 0%,
+    rgba(99, 102, 241, 0.5) 50%,
+    rgba(129, 140, 248, 0.6) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.glass-button:active {
+  transform: scale(0.97);
+}
+
+.glass-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.glass-button-text {
+  color: white;
+}
+
+.glass-button-shadow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  filter: blur(16px);
+  opacity: 0.4;
+  background: rgba(99, 102, 241, 0.5);
+  transition: opacity 0.3s ease;
+}
+
+.glass-button-wrap:hover .glass-button-shadow {
+  opacity: 0.6;
+}
+
+.glass-button:disabled ~ .glass-button-shadow {
+  opacity: 0;
+}
