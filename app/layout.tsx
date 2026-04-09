@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
+import ChatFAB from "@/components/chat/ChatFAB";
 
 // CLAUDE.md 디자인 가이드: Inter (UI), JetBrains Mono (코드)
 const inter = Inter({
@@ -30,7 +31,7 @@ export default function RootLayout({
       className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="h-screen flex overflow-hidden">
+      <body className="h-screen flex overflow-hidden" suppressHydrationWarning>
         <Sidebar />
         <div
           className="flex-1 flex overflow-hidden"
@@ -42,6 +43,7 @@ export default function RootLayout({
         >
           {children}
         </div>
+        <ChatFAB />
       </body>
     </html>
   );
