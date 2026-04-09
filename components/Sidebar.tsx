@@ -13,10 +13,10 @@ const MENU_ITEMS = [
   { label: 'Notes', icon: 'notes' as const, href: '/notes', showCount: true },
   { label: 'Search', icon: 'search' as const, href: '#', disabled: true },
   { label: 'Projects', icon: 'projects' as const, href: '/projects' },
+  { label: 'Skill Map', icon: 'skillmap' as const, href: '/skill-map' },
 ];
 
 const COMING_SOON = [
-  { label: 'Skill Map', icon: 'skillmap' as const },
   { label: 'Dashboard', icon: 'dashboard' as const },
   { label: 'Code Review', icon: 'codereview' as const },
 ];
