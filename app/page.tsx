@@ -3,7 +3,7 @@
 // 홈 화면 — Bolt 스타일: indigo glow + gradient title + premium input
 
 import { useState, useEffect } from 'react';
-import QuickInput from '@/components/QuickInput';
+import QuickNote from '@/components/quick-note/QuickNote';
 import RecentNotes from '@/components/RecentNotes';
 import type { Note, Project } from '@/lib/types';
 
@@ -26,7 +26,7 @@ const HomePage = () => {
         const projectsData = await projectsRes.json();
         if (projectsData.success) setProjects(projectsData.data);
       } catch (err) {
-        console.error('fetch 실패:', err);
+        console.error('Fetch failed:', err);
       } finally {
         setLoading(false);
       }
@@ -34,6 +34,7 @@ const HomePage = () => {
     fetchData();
   }, []);
 
+  // 빠른 저장 — 노트 저장 + 태그만 비동기 생성 (P/S/U 분리 없음)
   const handleQuickSave = async (rawContent: string, projectId: string | null) => {
     const res = await fetch('/api/notes', {
       method: 'POST',
@@ -53,12 +54,12 @@ const HomePage = () => {
     const newNote: Note = data.data;
     setNotes((prev) => [newNote, ...prev]);
 
-    // 비동기 AI 분석
+    // 비동기 태깅만 (analyze 엔드포인트로 태그 + 카테고리 생성)
     try {
-      const aiRes = await fetch('/api/ai/analyze-quick', {
+      const aiRes = await fetch('/api/ai/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rawContent }),
+        body: JSON.stringify({ noteType: 'quick', problem: rawContent }),
       });
       const aiData = await aiRes.json();
       if (!aiData.success) throw new Error(aiData.error);
@@ -67,11 +68,6 @@ const HomePage = () => {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          problem: aiData.data.problem,
-          solution: aiData.data.solution,
-          understanding: aiData.data.understanding,
-          whatIBuilt: aiData.data.whatIBuilt,
-          learnings: aiData.data.learnings,
           skillTags: aiData.data.skillTags,
           topicTags: aiData.data.topicTags,
           category: aiData.data.category,
@@ -82,7 +78,7 @@ const HomePage = () => {
         setNotes((prev) => prev.map((n) => (n.id === newNote.id ? updateData.data : n)));
       }
     } catch (err) {
-      console.error('Quick Note AI 분석 실패:', err);
+      console.error('Quick note tagging failed:', err);
     }
   };
 
@@ -114,7 +110,7 @@ const HomePage = () => {
       {loading ? (
         <div style={{ color: '#475569' }}>Loading...</div>
       ) : (
-        <div className="relative z-10 flex flex-col items-center w-full max-w-[600px] px-6">
+        <div className="relative z-10 flex flex-col items-center w-full max-w-[760px] px-6">
           {/* 타이틀 */}
           <h1
             className="text-[28px] font-bold tracking-[-0.02em] mb-2 text-center"
@@ -138,10 +134,11 @@ const HomePage = () => {
           </p>
 
           {/* Quick Input */}
-          <QuickInput
+          <QuickNote
             projects={projects}
-            onSave={handleQuickSave}
+            onQuickSave={handleQuickSave}
             onCreateProject={handleCreateProject}
+            onNotesSaved={(savedNotes) => setNotes((prev) => [...savedNotes, ...prev])}
           />
 
           {/* Recent Notes */}
