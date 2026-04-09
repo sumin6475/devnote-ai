@@ -1,8 +1,10 @@
-// 노트 목록 컴포넌트 — 380px 고정, 노트 미리보기 + 태그
+// 노트 목록 컴포넌트 — 380px 고정, 프로젝트 필터 지원
 
+import { useRouter } from 'next/navigation';
 import Tag from '@/components/ui/Tag';
 import {
   type Note,
+  type Project,
   getNoteTitle,
   getNotePreview,
   getTagColors,
@@ -13,9 +15,25 @@ type NoteListProps = {
   notes: Note[];
   selectedIndex: number;
   onSelect: (index: number) => void;
+  filterProject?: Project;
+  onNewNote?: () => void;
 };
 
-const NoteList = ({ notes, selectedIndex, onSelect }: NoteListProps) => {
+const NOTE_TYPE_LABEL: Record<string, string> = {
+  debug: 'DEBUG',
+  learning: 'LEARNING',
+  quick: 'QUICK',
+};
+
+const NOTE_TYPE_COLOR: Record<string, string> = {
+  debug: '#ef4444',
+  learning: '#38bdf8',
+  quick: '#a78bfa',
+};
+
+const NoteList = ({ notes, selectedIndex, onSelect, filterProject, onNewNote }: NoteListProps) => {
+  const router = useRouter();
+
   return (
     <section
       className="flex flex-col"
@@ -26,24 +44,66 @@ const NoteList = ({ notes, selectedIndex, onSelect }: NoteListProps) => {
         background: '#0f172a',
       }}
     >
-      {/* 헤더 */}
+      {/* 헤더 — 프로젝트 필터 시 프로젝트 이름 표시 */}
       <div
-        className="flex items-baseline gap-2 px-5 pt-[18px] pb-[14px]"
+        className="flex items-center gap-2 px-5 pt-[18px] pb-[14px]"
         style={{ borderBottom: '1px solid rgba(148,163,184,0.06)' }}
       >
-        <span className="text-[16px] font-semibold" style={{ color: '#f1f5f9' }}>
-          All Notes
-        </span>
-        <span className="text-[13px]" style={{ color: '#475569' }}>
-          ({notes.length})
-        </span>
+        {filterProject ? (
+          <>
+            <span
+              className="rounded-full shrink-0"
+              style={{ width: 7, height: 7, background: filterProject.color }}
+            />
+            <span className="text-[16px] font-semibold" style={{ color: '#f1f5f9' }}>
+              {filterProject.name}
+            </span>
+            <span className="text-[13px]" style={{ color: '#475569' }}>
+              ({notes.length})
+            </span>
+            <button
+              onClick={() => router.push('/notes')}
+              className="ml-auto text-[11px] font-medium px-2 py-[3px] rounded cursor-pointer border-none hover:opacity-80"
+              style={{
+                background: 'rgba(148,163,184,0.08)',
+                color: '#64748b',
+                fontFamily: 'inherit',
+              }}
+            >
+              Clear
+            </button>
+          </>
+        ) : (
+          <>
+            <span className="text-[16px] font-semibold" style={{ color: '#f1f5f9' }}>
+              All Notes
+            </span>
+            <span className="text-[13px]" style={{ color: '#475569' }}>
+              ({notes.length})
+            </span>
+          </>
+        )}
+        {onNewNote && (
+          <button
+            onClick={onNewNote}
+            className="ml-auto text-[12px] font-medium px-[10px] py-[5px] rounded-lg cursor-pointer border-none hover:opacity-80 active:scale-[0.97]"
+            style={{
+              background: 'rgba(99,102,241,0.1)',
+              color: '#818cf8',
+              fontFamily: 'inherit',
+              transition: 'opacity 0.15s, transform 0.15s',
+            }}
+          >
+            + New
+          </button>
+        )}
       </div>
 
       {/* 노트 리스트 */}
       <div className="flex-1 overflow-y-auto px-[10px] py-[6px]">
         {notes.map((note, i) => {
           const isSelected = selectedIndex === i;
-          const tagColors = getTagColors(note.tags);
+          const tagColors = getTagColors(note.topicTags);
           return (
             <div
               key={note.id}
@@ -61,15 +121,14 @@ const NoteList = ({ notes, selectedIndex, onSelect }: NoteListProps) => {
               {/* 타입 라벨 + 제목 */}
               <div className="flex items-start justify-between mb-[5px]">
                 <div className="flex-1 mr-2">
-                  {/* 노트 타입 라벨 — 텍스트만, 이모티콘 금지 */}
                   <span
                     className="text-[9px] font-bold uppercase tracking-[0.08em] mr-[6px]"
                     style={{
-                      color: note.noteType === 'debug' ? '#ef4444' : '#38bdf8',
+                      color: NOTE_TYPE_COLOR[note.noteType] ?? '#64748b',
                       opacity: 0.7,
                     }}
                   >
-                    {note.noteType === 'debug' ? 'DEBUG' : 'LEARNING'}
+                    {NOTE_TYPE_LABEL[note.noteType] ?? 'NOTE'}
                   </span>
                   <span
                     className="text-[13px] leading-[1.35]"
@@ -81,13 +140,12 @@ const NoteList = ({ notes, selectedIndex, onSelect }: NoteListProps) => {
                     {getNoteTitle(note)}
                   </span>
                 </div>
-                {/* 타입별 컬러 인디케이터 */}
                 <span
                   className="shrink-0 mt-1 rounded-full opacity-70"
                   style={{
                     width: 8,
                     height: 8,
-                    background: note.noteType === 'debug' ? '#818cf8' : '#38bdf8',
+                    background: NOTE_TYPE_COLOR[note.noteType] ?? '#64748b',
                   }}
                 />
               </div>
@@ -102,7 +160,7 @@ const NoteList = ({ notes, selectedIndex, onSelect }: NoteListProps) => {
 
               {/* 태그 + 날짜 */}
               <div className="flex items-center gap-[5px] flex-wrap">
-                {note.tags.map((tag, j) => (
+                {note.topicTags.map((tag, j) => (
                   <Tag key={tag} label={tag} colorKey={tagColors[j]} />
                 ))}
                 {note.relatedConcepts && note.relatedConcepts.length > 0 && (

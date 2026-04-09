@@ -47,3 +47,14 @@ body {
   scrollbar-width: thin;
   scrollbar-color: rgba(148, 163, 184, 0.15) transparent;
 }
+
+/* Shimmer 애니메이션 — AI 분석 로딩 상태 */
+@keyframes shimmer {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+.shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+}

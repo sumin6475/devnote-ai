@@ -1,4 +1,5 @@
-// 태그 컴포넌트 — rgba 배경 + 미세 border, solid border 금지
+// 태그 컴포넌트 — 2가지 스타일: SkillTag (보라색, 크게) + TopicTag (회색, 작게)
+// rgba 배경 + 미세 border, solid border 금지
 
 import type { TagColor } from '@/lib/types';
 
@@ -20,6 +21,7 @@ const TAG_COLOR_MAP = {
   },
 } as const;
 
+// 기존 Tag — NoteList에서 topicTags 표시용
 type TagProps = {
   label: string;
   colorKey: TagColor;
@@ -41,5 +43,33 @@ const Tag = ({ label, colorKey }: TagProps) => {
     </span>
   );
 };
+
+// Skill Tag — AI Context에서 canonical skill tag 표시용
+export const SkillTag = ({ label }: { label: string }) => (
+  <span
+    style={{
+      background: 'rgba(129, 140, 248, 0.15)',
+      color: '#A5B4FC',
+      border: '1px solid rgba(129, 140, 248, 0.25)',
+    }}
+    className="text-[13px] font-medium px-[14px] py-[5px] rounded-[20px] whitespace-nowrap"
+  >
+    {label}
+  </span>
+);
+
+// Topic Tag — AI Context에서 free-form topic tag 표시용
+export const TopicTag = ({ label }: { label: string }) => (
+  <span
+    style={{
+      background: 'rgba(148, 163, 184, 0.1)',
+      color: '#94A3B8',
+      border: '1px solid rgba(148, 163, 184, 0.15)',
+    }}
+    className="text-[12px] font-medium px-[10px] py-[3px] rounded-[20px] whitespace-nowrap"
+  >
+    {label}
+  </span>
+);
 
 export default Tag;

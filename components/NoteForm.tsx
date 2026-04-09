@@ -5,18 +5,25 @@
 // CLAUDE.md: 이모티콘 금지, 배경 opacity 스타일, 좌측 accent border
 
 import { useState } from 'react';
-import type { Note } from '@/lib/types';
+import type { Note, Project } from '@/lib/types';
+import ProjectDropdown from '@/components/ProjectDropdown';
 
 type NoteFormProps = {
   onSave: (note: Note) => void;
   onCancel: () => void;
-  editNote?: Note; // 수정 모드일 때 기존 노트 데이터
+  editNote?: Note;
+  projects?: Project[];
+  onCreateProject?: (name: string) => Promise<Project>;
+  defaultProjectId?: string | null;
 };
 
-const NoteForm = ({ onSave, onCancel, editNote }: NoteFormProps) => {
+const NoteForm = ({ onSave, onCancel, editNote, projects = [], onCreateProject, defaultProjectId }: NoteFormProps) => {
   const isEditing = !!editNote;
 
-  const [noteType, setNoteType] = useState<'debug' | 'learning'>(editNote?.noteType ?? 'debug');
+  const [noteType, setNoteType] = useState<'debug' | 'learning'>(
+    editNote?.noteType === 'quick' ? 'debug' : (editNote?.noteType ?? 'debug')
+  );
+  const [projectId, setProjectId] = useState<string | null>(editNote?.projectId ?? defaultProjectId ?? null);
   const [showCode, setShowCode] = useState(!!editNote?.codeSnippet);
   const [saving, setSaving] = useState(false);
 
@@ -64,11 +71,12 @@ const NoteForm = ({ onSave, onCancel, editNote }: NoteFormProps) => {
               source: source.trim() || null,
             }),
         codeSnippet: showCode && codeSnippet.trim() ? codeSnippet : null,
-        // 수정 모드에서는 기존 AI 데이터 유지, 생성 모드에서는 빈 값
-        tags: isEditing ? editNote.tags : [],
+        projectId,
+        // 수정 모드에서는 기존 AI 데이터 유지, 생성 모드에서는 빈 값 (AI가 자동 생성)
+        skillTags: isEditing ? editNote.skillTags : [],
+        topicTags: isEditing ? editNote.topicTags : [],
         category: isEditing ? editNote.category : '',
         relatedConcepts: isEditing ? editNote.relatedConcepts : [],
-        difficulty: isEditing ? editNote.difficulty : 1,
       };
 
       // 생성: POST /api/notes / 수정: PUT /api/notes/[id]
@@ -300,6 +308,21 @@ const NoteForm = ({ onSave, onCancel, editNote }: NoteFormProps) => {
               boxSizing: 'border-box',
             }}
           />
+        )}
+
+        {/* 프로젝트 선택 */}
+        {onCreateProject && (
+          <div className="mt-6 flex items-center gap-2">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.05em]" style={{ color: '#475569' }}>
+              Project
+            </span>
+            <ProjectDropdown
+              selectedProjectId={projectId}
+              onSelect={setProjectId}
+              projects={projects}
+              onCreateProject={onCreateProject}
+            />
+          </div>
         )}
 
         {/* Save 버튼 */}

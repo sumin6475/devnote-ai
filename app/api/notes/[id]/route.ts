@@ -52,10 +52,10 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     if (body.learnings !== undefined) row.learnings = body.learnings;
     if (body.source !== undefined) row.source = body.source;
     if (body.codeSnippet !== undefined) row.code_snippet = body.codeSnippet;
-    if (body.tags !== undefined) row.tags = body.tags;
+    if (body.skillTags !== undefined) row.skill_tags = body.skillTags;
+    if (body.topicTags !== undefined) row.topic_tags = body.topicTags;
     if (body.category !== undefined) row.category = body.category;
     if (body.relatedConcepts !== undefined) row.related_concepts = body.relatedConcepts;
-    if (body.difficulty !== undefined) row.difficulty = body.difficulty;
     if (body.projectId !== undefined) row.project_id = body.projectId;
 
     const { data, error } = await supabase

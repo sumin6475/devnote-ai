@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0B1120; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #E2E8F0; padding: 32px; }
+
+.state { margin-bottom: 40px; }
+.state-label { font-size: 16px; font-weight: 600; color: #F8FAFC; margin-bottom: 4px; }
+.state-desc { font-size: 13px; color: #94A3B8; margin-bottom: 12px; }
+
+.frame { background: #0F172A; border-radius: 12px; border: 1px solid rgba(148,163,184,0.12); display: flex; height: 400px; overflow: hidden; }
+
+.sidebar { width: 180px; background: #1E293B; padding: 18px 12px; flex-shrink: 0; border-right: 1px solid rgba(148,163,184,0.08); display: flex; flex-direction: column; }
+.logo { font-size: 16px; font-weight: 600; color: #F1F5F9; padding: 0 10px 18px; display: flex; align-items: center; gap: 8px; }
+.logo-icon { width: 24px; height: 24px; background: #6366F1; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: white; font-weight: 700; }
+.menu-section { font-size: 10px; color: #475569; padding: 12px 10px 5px; text-transform: uppercase; letter-spacing: 0.8px; }
+.menu-item { padding: 8px 10px; border-radius: 6px; font-size: 13px; color: #94A3B8; margin-bottom: 2px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.menu-item.active { background: rgba(129,140,248,0.12); color: #A5B4FC; }
+.menu-item.disabled { color: #475569; }
+.menu-count { font-size: 11px; background: rgba(129,140,248,0.2); color: #A5B4FC; padding: 1px 7px; border-radius: 10px; margin-left: auto; }
+.sidebar-footer { margin-top: auto; font-size: 10px; color: #475569; padding: 0 10px; }
+
+/* Home */
+.home-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+.greeting { font-size: 22px; font-weight: 600; color: #F8FAFC; margin-bottom: 20px; }
+.quick-input { width: 100%; max-width: 480px; background: #1E293B; border: 1px solid rgba(148,163,184,0.15); border-radius: 12px; padding: 16px 20px; }
+.quick-ph { font-size: 14px; color: #475569; line-height: 1.6; }
+.quick-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+.pj-pill { font-size: 12px; color: #818CF8; background: rgba(129,140,248,0.1); padding: 4px 12px; border-radius: 6px; }
+.save-btn { font-size: 12px; color: white; background: #6366F1; padding: 6px 18px; border-radius: 6px; font-weight: 500; }
+.save-btn.dim { opacity: 0.4; }
+.recent-section { margin-top: 28px; width: 100%; max-width: 480px; }
+.recent-label { font-size: 13px; color: #94A3B8; margin-bottom: 10px; }
+.recent-cards { display: flex; gap: 10px; }
+.recent-card { background: #1E293B; border: 1px solid rgba(148,163,184,0.08); border-radius: 8px; padding: 12px 14px; flex: 1; }
+.rc-title { font-size: 12px; color: #E2E8F0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rc-time { font-size: 11px; color: #64748B; margin-top: 4px; }
+
+/* Notes 3-col */
+.note-list { width: 280px; background: #1E293B; border-right: 1px solid rgba(148,163,184,0.08); padding: 16px; flex-shrink: 0; overflow-y: auto; }
+.nl-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.nl-title { font-size: 14px; font-weight: 600; color: #F1F5F9; }
+.nl-new { font-size: 12px; color: #818CF8; cursor: pointer; }
+.note-item { padding: 10px; border-radius: 8px; margin-bottom: 4px; cursor: pointer; }
+.note-item.selected { background: rgba(129,140,248,0.08); }
+.ni-type { font-size: 10px; font-weight: 600; margin-bottom: 3px; }
+.ni-type.debug { color: #EF4444; }
+.ni-type.learning { color: #38BDF8; }
+.ni-type.quick { color: #A78BFA; }
+.ni-title { font-size: 13px; color: #E2E8F0; font-weight: 500; }
+.ni-preview { font-size: 11px; color: #64748B; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ni-tags { display: flex; gap: 4px; margin-top: 6px; }
+.ni-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: rgba(129,140,248,0.15); color: #A5B4FC; }
+
+.note-detail { flex: 1; padding: 24px; overflow-y: auto; }
+.nd-ph { color: #475569; font-size: 14px; display: flex; align-items: center; justify-content: center; height: 100%; }
+
+/* Projects grid */
+.projects-main { flex: 1; padding: 24px; overflow-y: auto; }
+.pj-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.pj-title { font-size: 20px; font-weight: 600; color: #F8FAFC; }
+.pj-new-btn { font-size: 13px; color: #A5B4FC; border: 1px solid rgba(129,140,248,0.3); padding: 6px 16px; border-radius: 8px; }
+.pj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.pj-card { background: #1E293B; border: 1px solid rgba(148,163,184,0.08); border-radius: 12px; padding: 18px; cursor: pointer; }
+.pj-card:hover { border-color: rgba(148,163,184,0.2); }
+.pj-card-name { font-size: 15px; font-weight: 600; color: #F1F5F9; display: flex; align-items: center; gap: 8px; }
+.pj-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.pj-card-desc { font-size: 12px; color: #94A3B8; margin-top: 6px; line-height: 1.5; }
+.pj-card-meta { font-size: 11px; color: #64748B; margin-top: 12px; }
+
+/* Filter header */
+.filter-header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.filter-name { font-size: 14px; font-weight: 600; color: #F1F5F9; display: flex; align-items: center; gap: 6px; }
+.filter-clear { font-size: 11px; color: #64748B; margin-left: auto; cursor: pointer; }
+
+.arrow { font-size: 12px; color: #818CF8; margin-left: auto; }
+</style>
+</head>
+<body>
+
+<!-- STATE 1: HOME -->
+<div class="state">
+  <div class="state-label">State 1: Home (default — app entry)</div>
+  <div class="state-desc">Sidebar: main menu, Home active. Main: Quick Input centered + Recent Notes below.</div>
+  <div class="frame">
+    <div class="sidebar">
+      <div class="logo"><div class="logo-icon">N</div> DevNote</div>
+      <div class="menu-section">Menu</div>
+      <div class="menu-item active">Home</div>
+      <div class="menu-item">Notes <span class="menu-count">12</span></div>
+      <div class="menu-item">Search</div>
+      <div class="menu-item">Projects</div>
+      <div class="menu-section">Coming Soon</div>
+      <div class="menu-item disabled">Skill Map</div>
+      <div class="menu-item disabled">Dashboard</div>
+      <div class="menu-item disabled">Code Review</div>
+      <div class="sidebar-footer">DevNote v1.0 MVP</div>
+    </div>
+    <div class="home-main">
+      <div class="greeting">What did you learn today?</div>
+      <div class="quick-input">
+        <div class="quick-ph">Paste what you learned, a bug you fixed, or anything...</div>
+        <div style="height: 40px;"></div>
+        <div class="quick-bar">
+          <span class="pj-pill">No project ▾</span>
+          <span class="save-btn dim">Save</span>
+        </div>
+      </div>
+      <div class="recent-section">
+        <div class="recent-label">Recent notes</div>
+        <div class="recent-cards">
+          <div class="recent-card">
+            <div class="rc-title">og:image twitter fix</div>
+            <div class="rc-time">4 days ago</div>
+          </div>
+          <div class="recent-card">
+            <div class="rc-title">WebSocket message flow</div>
+            <div class="rc-time">2 days ago</div>
+          </div>
+          <div class="recent-card">
+            <div class="rc-title">Zod schema nested</div>
+            <div class="rc-time">5 days ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATE 2: NOTES -->
+<div class="state">
+  <div class="state-label">State 2: Notes (all notes — 3 column)</div>
+  <div class="state-desc">Sidebar: Notes active. Main: NoteList + NoteDetail. Same as current /notes page.</div>
+  <div class="frame">
+    <div class="sidebar">
+      <div class="logo"><div class="logo-icon">N</div> DevNote</div>
+      <div class="menu-section">Menu</div>
+      <div class="menu-item">Home</div>
+      <div class="menu-item active">Notes <span class="menu-count">12</span></div>
+      <div class="menu-item">Search</div>
+      <div class="menu-item">Projects</div>
+      <div class="menu-section">Coming Soon</div>
+      <div class="menu-item disabled">Skill Map</div>
+      <div class="menu-item disabled">Dashboard</div>
+      <div class="menu-item disabled">Code Review</div>
+      <div class="sidebar-footer">DevNote v1.0 MVP</div>
+    </div>
+    <div class="note-list">
+      <div class="nl-header">
+        <span class="nl-title">All Notes (12)</span>
+        <span class="nl-new">+ New</span>
+      </div>
+      <div class="note-item selected">
+        <div class="ni-type debug">DEBUG</div>
+        <div class="ni-title">og:image 넣었는데 트위터에서 안 나옴</div>
+        <div class="ni-preview">twitter:image 메타태그 추가...</div>
+        <div class="ni-tags"><span class="ni-tag">Open Graph</span><span class="ni-tag">+2</span></div>
+      </div>
+      <div class="note-item">
+        <div class="ni-type learning">LEARNING</div>
+        <div class="ni-title">WebSocket message flow</div>
+        <div class="ni-preview">socket.send(input.value) 로 ...</div>
+        <div class="ni-tags"><span class="ni-tag">WebSocket</span><span class="ni-tag">+1</span></div>
+      </div>
+      <div class="note-item">
+        <div class="ni-type quick">QUICK</div>
+        <div class="ni-title">Zod schema for nested output</div>
+        <div class="ni-preview">Structured output with...</div>
+      </div>
+    </div>
+    <div class="note-detail">
+      <div class="nd-ph">← Note detail renders here</div>
+    </div>
+  </div>
+</div>
+
+<!-- STATE 3: PROJECTS PAGE -->
+<div class="state">
+  <div class="state-label">State 3: Projects page (card grid)</div>
+  <div class="state-desc">Sidebar: Projects active. Main: project cards in grid. Click a card → goes to State 4.</div>
+  <div class="frame">
+    <div class="sidebar">
+      <div class="logo"><div class="logo-icon">N</div> DevNote</div>
+      <div class="menu-section">Menu</div>
+      <div class="menu-item">Home</div>
+      <div class="menu-item">Notes <span class="menu-count">12</span></div>
+      <div class="menu-item">Search</div>
+      <div class="menu-item active">Projects</div>
+      <div class="menu-section">Coming Soon</div>
+      <div class="menu-item disabled">Skill Map</div>
+      <div class="menu-item disabled">Dashboard</div>
+      <div class="menu-item disabled">Code Review</div>
+      <div class="sidebar-footer">DevNote v1.0 MVP</div>
+    </div>
+    <div class="projects-main">
+      <div class="pj-header">
+        <span class="pj-title">Projects</span>
+        <span class="pj-new-btn">+ New project</span>
+      </div>
+      <div class="pj-grid">
+        <div class="pj-card">
+          <div class="pj-card-name"><div class="pj-dot" style="background:#818CF8;"></div>Authenticity Engine</div>
+          <div class="pj-card-desc">AI-powered self-reflection tool</div>
+          <div class="pj-card-meta">5 notes · Updated 7 days ago</div>
+        </div>
+        <div class="pj-card">
+          <div class="pj-card-name"><div class="pj-dot" style="background:#5DCAA5;"></div>HAIT</div>
+          <div class="pj-card-desc">AI agent build for experiment platform</div>
+          <div class="pj-card-meta">2 notes · Updated 23 days ago</div>
+        </div>
+        <div class="pj-card">
+          <div class="pj-card-name"><div class="pj-dot" style="background:#F0997B;"></div>DevNote</div>
+          <div class="pj-card-desc">Developer learning journal</div>
+          <div class="pj-card-meta">4 notes · Updated 1 day ago</div>
+        </div>
+        <div class="pj-card">
+          <div class="pj-card-name"><div class="pj-dot" style="background:#ED93B1;"></div>SpeechCoach</div>
+          <div class="pj-card-desc">No description</div>
+          <div class="pj-card-meta">1 note · Updated 19 days ago</div>
+        </div>
+        <div class="pj-card">
+          <div class="pj-card-name"><div class="pj-dot" style="background:#85B7EB;"></div>Shadowing Plus</div>
+          <div class="pj-card-desc">No description</div>
+          <div class="pj-card-meta">0 notes</div>
+        </div>
+        <div class="pj-card">
+          <div class="pj-card-name"><div class="pj-dot" style="background:#97C459;"></div>Lingua-catalyst</div>
+          <div class="pj-card-desc">No description</div>
+          <div class="pj-card-meta">0 notes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATE 4: PROJECT FILTERED NOTES -->
+<div class="state">
+  <div class="state-label">State 4: Project notes (filtered 3 column)</div>
+  <div class="state-desc">Sidebar: Notes active (we're viewing notes). Main: NoteList filtered by project + "✕ Clear" to go back to all notes.</div>
+  <div class="frame">
+    <div class="sidebar">
+      <div class="logo"><div class="logo-icon">N</div> DevNote</div>
+      <div class="menu-section">Menu</div>
+      <div class="menu-item">Home</div>
+      <div class="menu-item active">Notes <span class="menu-count">12</span></div>
+      <div class="menu-item">Search</div>
+      <div class="menu-item">Projects</div>
+      <div class="menu-section">Coming Soon</div>
+      <div class="menu-item disabled">Skill Map</div>
+      <div class="menu-item disabled">Dashboard</div>
+      <div class="menu-item disabled">Code Review</div>
+      <div class="sidebar-footer">DevNote v1.0 MVP</div>
+    </div>
+    <div class="note-list">
+      <div class="filter-header">
+        <div class="filter-name"><div class="pj-dot" style="background:#818CF8;"></div>Authenticity Engine (5)</div>
+        <span class="filter-clear">✕ Clear</span>
+      </div>
+      <div class="note-item selected">
+        <div class="ni-type debug">DEBUG</div>
+        <div class="ni-title">Embedding search threshold</div>
+        <div class="ni-preview">Changed cosine similarity...</div>
+        <div class="ni-tags"><span class="ni-tag">Embeddings</span></div>
+      </div>
+      <div class="note-item">
+        <div class="ni-type learning">LEARNING</div>
+        <div class="ni-title">Zod schema for reflection</div>
+        <div class="ni-preview">Structured output with nested...</div>
+        <div class="ni-tags"><span class="ni-tag">Structured outputs</span></div>
+      </div>
+      <div class="note-item">
+        <div class="ni-type debug">DEBUG</div>
+        <div class="ni-title">Prompt injection edge case</div>
+        <div class="ni-preview">User input leaking into...</div>
+        <div class="ni-tags"><span class="ni-tag">Prompt engineering</span></div>
+      </div>
+      <div class="note-item">
+        <div class="ni-type quick">QUICK</div>
+        <div class="ni-title">Vector search pagination</div>
+        <div class="ni-preview">pgvector doesn't support...</div>
+      </div>
+    </div>
+    <div class="note-detail">
+      <div class="nd-ph">← Note detail renders here</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
