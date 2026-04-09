@@ -46,15 +46,15 @@ const Sidebar = () => {
     <aside
       className="flex flex-col py-5 shrink-0 h-screen overflow-y-auto"
       style={{
-        width: 210,
-        minWidth: 210,
+        width: 320,
+        minWidth: 320,
         background: 'rgba(15, 23, 42, 0.85)',
         borderRight: '1px solid rgba(148,163,184,0.08)',
       }}
     >
       {/* 로고 — 클릭 시 홈으로 */}
       <div
-        className="flex items-center gap-[9px] px-[18px] pb-6 cursor-pointer hover:opacity-80"
+        className="flex items-center gap-[9px] px-5 pb-8 cursor-pointer hover:opacity-80"
         onClick={() => router.push('/')}
         style={{ transition: 'opacity 0.15s' }}
       >
@@ -73,8 +73,8 @@ const Sidebar = () => {
       </div>
 
       {/* 메뉴 */}
-      <div className="px-3 pt-4 pb-1">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.08em] px-2 pb-[6px]" style={{ color: '#475569' }}>
+      <div className="px-4 pt-6 pb-1">
+        <div className="text-[10px] font-semibold uppercase tracking-[0.08em] px-2 pb-2" style={{ color: '#475569' }}>
           Menu
         </div>
 
@@ -84,7 +84,7 @@ const Sidebar = () => {
             <div
               key={item.label}
               onClick={item.disabled ? undefined : () => router.push(item.href)}
-              className="flex items-center gap-[10px] px-3 py-2 rounded-[7px] mb-[1px] hover:opacity-80 active:scale-[0.98]"
+              className="flex items-center gap-[10px] px-3 py-[9px] rounded-[7px] mb-[2px] hover:opacity-80 active:scale-[0.98]"
               style={{
                 background: active ? 'rgba(99,102,241,0.1)' : 'transparent',
                 color: active ? '#818cf8' : item.disabled ? '#334155' : '#64748b',
@@ -116,8 +116,8 @@ const Sidebar = () => {
       </div>
 
       {/* Coming Soon */}
-      <div className="px-3 pt-3 pb-1">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.08em] px-2 pb-[6px]" style={{ color: '#334155' }}>
+      <div className="px-4 pt-6 pb-1">
+        <div className="text-[10px] font-semibold uppercase tracking-[0.08em] px-2 pb-2" style={{ color: '#334155' }}>
           Coming soon
         </div>
         {COMING_SOON.map((item) => (

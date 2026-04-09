@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     // 응답에서 텍스트 추출
     const textBlock = message.content.find((block) => block.type === 'text');
     if (!textBlock || textBlock.type !== 'text') {
-      throw new Error('Claude API에서 텍스트 응답을 받지 못했습니다');
+      throw new Error('No text response from Claude API');
     }
 
     // JSON 파싱 — 마크다운 코드 펜스가 포함된 경우 제거
@@ -47,8 +47,8 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (err: unknown) {
-    console.error('AI 분석 실패:', err);
-    const message = err instanceof Error ? err.message : 'AI 분석 중 오류 발생';
+    console.error('AI analysis failed:', err);
+    const message = err instanceof Error ? err.message : 'AI analysis error';
     return NextResponse.json(
       { success: false, error: message },
       { status: 500 }

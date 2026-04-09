@@ -52,15 +52,15 @@ const NoteDetail = ({ note, onEdit, onDelete, isAnalyzing, onRetryAnalysis }: No
       const res = await fetch(`/api/notes/${note.id}`, { method: 'DELETE' });
       const contentType = res.headers.get('content-type');
       if (!contentType?.includes('application/json')) {
-        throw new Error(`서버 에러 (${res.status})`);
+        throw new Error(`Server error (${res.status})`);
       }
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       setShowDeleteConfirm(false);
       onDelete?.(note.id);
     } catch (err) {
-      console.error('삭제 실패:', err);
-      alert(err instanceof Error ? err.message : '삭제에 실패했습니다');
+      console.error('Delete failed:', err);
+      alert(err instanceof Error ? err.message : 'Failed to delete');
     } finally {
       setDeleting(false);
     }

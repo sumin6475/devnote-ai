@@ -43,8 +43,8 @@ const NotesPage = () => {
         const projectsData = await projectsRes.json();
         if (projectsData.success) setProjects(projectsData.data);
       } catch (err) {
-        console.error('fetch 실패:', err);
-        setError(err instanceof Error ? err.message : '노트를 불러올 수 없습니다');
+        console.error('Fetch failed:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load notes');
       } finally {
         setLoading(false);
       }

@@ -100,7 +100,7 @@ const NoteForm = ({ onSave, onCancel, editNote, projects = [], onCreateProject, 
 
       const contentType = res.headers.get('content-type');
       if (!contentType?.includes('application/json')) {
-        throw new Error(`서버 에러 (${res.status})`);
+        throw new Error(`Server error (${res.status})`);
       }
 
       const data = await res.json();
@@ -108,8 +108,8 @@ const NoteForm = ({ onSave, onCancel, editNote, projects = [], onCreateProject, 
 
       onSave(data.data);
     } catch (err) {
-      console.error('저장 실패:', err);
-      alert(err instanceof Error ? err.message : '저장에 실패했습니다');
+      console.error('Save failed:', err);
+      alert(err instanceof Error ? err.message : 'Failed to save');
     } finally {
       setSaving(false);
     }
