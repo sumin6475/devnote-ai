@@ -11,13 +11,22 @@ export async function GET(request: NextRequest) {
     const supabase = getSupabase();
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get('project');
+    const countOnly = searchParams.get('count') === 'true';
+
+    // count만 필요하면 데이터 안 가져옴
+    if (countOnly) {
+      let countQuery = supabase.from('notes').select('*', { count: 'exact', head: true });
+      if (projectId) countQuery = countQuery.eq('project_id', projectId);
+      const { count, error } = await countQuery;
+      if (error) throw error;
+      return NextResponse.json({ success: true, count: count ?? 0 });
+    }
 
     let query = supabase
       .from('notes')
       .select('*')
       .order('created_at', { ascending: false });
 
-    // 프로젝트 필터 적용
     if (projectId) {
       query = query.eq('project_id', projectId);
     }

@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Home as HomeIcon } from 'lucide-react';
+import { Home as HomeIcon, Settings } from 'lucide-react';
 import Icon from '@/components/ui/Icons';
 
 const MENU_ITEMS = [
@@ -14,6 +14,7 @@ const MENU_ITEMS = [
   { label: 'Search', icon: 'search' as const, href: '#', disabled: true },
   { label: 'Projects', icon: 'projects' as const, href: '/projects' },
   { label: 'Skill Map', icon: 'skillmap' as const, href: '/skill-map' },
+  { label: 'Settings', icon: 'notes' as const, href: '/settings' },
 ];
 
 const COMING_SOON = [
@@ -26,15 +27,15 @@ const Sidebar = () => {
   const pathname = usePathname();
   const [noteCount, setNoteCount] = useState(0);
 
-  // 노트 수 자체 fetch
+  // 노트 수만 count (전체 데이터 fetch 안 함)
   useEffect(() => {
-    fetch('/api/notes')
+    fetch('/api/notes?count=true')
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) setNoteCount(data.data.length);
+        if (data.success) setNoteCount(data.count ?? data.data?.length ?? 0);
       })
       .catch(() => {});
-  }, [pathname]); // 페이지 전환 시 갱신
+  }, [pathname]);
 
   // 현재 경로에 맞는 active 판별
   const isActive = (href: string) => {
@@ -97,6 +98,8 @@ const Sidebar = () => {
             >
               {item.label === 'Home' ? (
                 <HomeIcon style={{ width: 18, height: 18, color: active ? '#818cf8' : '#64748b' }} />
+              ) : item.label === 'Settings' ? (
+                <Settings style={{ width: 18, height: 18, color: active ? '#818cf8' : '#64748b' }} />
               ) : (
                 <Icon name={item.icon} color={active ? '#818cf8' : item.disabled ? '#334155' : '#64748b'} />
               )}

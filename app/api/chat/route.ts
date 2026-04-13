@@ -1,12 +1,34 @@
-// POST /api/chat — Claude API SSE 스트리밍 챗봇
+// POST /api/chat — Claude API SSE 스트리밍, 설정 기반 동적 프롬프트
 
 import { NextRequest } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
-import { CHAT_SYSTEM_PROMPT } from '@/lib/prompts/chat';
+import { buildChatPrompt, type ChatSettings } from '@/lib/prompts/chat';
+import { getSupabase } from '@/lib/supabase';
 
 const claude = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
+
+// 유저 설정 조회 (DB 직접)
+async function getSettings(): Promise<ChatSettings | null> {
+  try {
+    const supabase = getSupabase();
+    const { data } = await supabase
+      .from('user_settings')
+      .select('nickname, chat_tone, response_language')
+      .limit(1)
+      .single();
+
+    if (!data) return null;
+    return {
+      nickname: data.nickname,
+      chatTone: data.chat_tone,
+      responseLanguage: data.response_language,
+    };
+  } catch {
+    return null;
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,21 +41,22 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 최근 20개 메시지만 유지 (토큰 절약)
+    // 설정 조회 + 동적 프롬프트 빌드
+    const settings = await getSettings();
+    const systemPrompt = buildChatPrompt(settings);
+
     const recentMessages = messages.slice(-20);
 
-    // Claude API 스트리밍 호출
     const stream = claude.messages.stream({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 2048,
-      system: CHAT_SYSTEM_PROMPT,
+      system: systemPrompt,
       messages: recentMessages.map((m: { role: string; content: string }) => ({
         role: m.role as 'user' | 'assistant',
         content: m.content,
       })),
     });
 
-    // ReadableStream으로 SSE 전달
     const encoder = new TextEncoder();
     const readable = new ReadableStream({
       async start(controller) {

@@ -34,6 +34,11 @@ const FIELD_STYLE: React.CSSProperties = {
 const NoteForm = ({ onSave, onCancel, editNote, projects = [], onCreateProject, defaultProjectId }: NoteFormProps) => {
   const isEditing = !!editNote;
 
+  // quick 노트 편집 시: P/S/U가 비어있으면 rawContent를 problem에 채움
+  const initialProblem = editNote?.problem || (editNote?.noteType === 'quick' ? (editNote?.rawContent ?? '') : '');
+  const initialSolution = editNote?.solution ?? '';
+  const initialUnderstanding = editNote?.understanding ?? '';
+
   const [noteType, setNoteType] = useState<'debug' | 'learning'>(
     editNote?.noteType === 'quick' ? 'debug' : (editNote?.noteType ?? 'debug')
   );
@@ -42,9 +47,9 @@ const NoteForm = ({ onSave, onCancel, editNote, projects = [], onCreateProject, 
   const [saving, setSaving] = useState(false);
 
   // Debug 필드
-  const [problem, setProblem] = useState(editNote?.problem ?? '');
-  const [solution, setSolution] = useState(editNote?.solution ?? '');
-  const [understanding, setUnderstanding] = useState(editNote?.understanding ?? '');
+  const [problem, setProblem] = useState(initialProblem);
+  const [solution, setSolution] = useState(initialSolution);
+  const [understanding, setUnderstanding] = useState(initialUnderstanding);
 
   // Learning 필드
   const [whatIBuilt, setWhatIBuilt] = useState(editNote?.whatIBuilt ?? '');

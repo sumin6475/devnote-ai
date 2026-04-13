@@ -13,6 +13,7 @@ export type ParsedNote = {
   problem: string;
   solution: string;
   understanding: string;
+  code_snippet?: string | null;
   skill_tags: string[];
   topic_tags: string[];
   projectId: string | null;
@@ -161,6 +162,25 @@ const ParsedNoteCard = ({ note, index, projects, onCreateProject, onUpdate, onDe
           </div>
         </div>
       ))}
+
+      {/* Code Snippet */}
+      {note.code_snippet && (
+        <div className="mt-2 mb-1">
+          <pre
+            className="text-[11px] leading-[1.6] m-0 overflow-x-auto rounded-lg whitespace-pre"
+            style={{
+              background: 'rgba(15,23,42,0.6)',
+              border: '1px solid rgba(148,163,184,0.08)',
+              padding: '10px 12px',
+              color: '#94A3B8',
+              fontFamily: "'JetBrains Mono', monospace",
+              maxHeight: 120,
+            }}
+          >
+            {note.code_snippet}
+          </pre>
+        </div>
+      )}
 
       {/* Tags */}
       <div className="flex gap-[5px] flex-wrap mt-3">

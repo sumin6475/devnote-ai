@@ -46,6 +46,17 @@ Foundation:
 - Cloud deployment
 - Git
 
+## 대화 기반 노트 생성 규칙
+
+입력이 챗봇 대화([User]/[AI] 태그 포함)인 경우:
+- 유저의 질문을 problem으로 변환: "이걸 왜 알아야 하는지" 맥락으로
+- AI의 답변을 solution + understanding으로 변환
+- 코드 블록이 여러 개인 경우:
+  - 모든 코드를 하나의 code_snippet 필드에 합침
+  - 각 코드 블록 위에 주석으로 구분: // === [설명] ===
+  - 본문(understanding)에 "→ Snippet: [코드1 설명], [코드2 설명]" 형태로 짧게 참조
+- 대화에서 여러 개념이 나왔으면 별도 노트로 분리
+
 ## 응답 형식
 반드시 JSON으로만 응답. 마크다운 백틱 없이.
 
@@ -56,6 +67,7 @@ Foundation:
       "problem": "왜 알아야 하는지",
       "solution": "핵심 해결법",
       "understanding": "근본 원리",
+      "code_snippet": "코드 블록 합침 (없으면 null)",
       "skill_tags": ["canonical list에서만"],
       "topic_tags": ["구체적", "토픽"]
     }
