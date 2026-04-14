@@ -11,6 +11,7 @@ import Icon from '@/components/ui/Icons';
 const MENU_ITEMS = [
   { label: 'Home', icon: 'notes' as const, href: '/' },
   { label: 'Notes', icon: 'notes' as const, href: '/notes', showCount: true },
+  { label: 'Snippets', icon: 'snippets' as const, href: '/snippets' },
   { label: 'Search', icon: 'search' as const, href: '#', disabled: true },
   { label: 'Projects', icon: 'projects' as const, href: '/projects' },
   { label: 'Skill Map', icon: 'skillmap' as const, href: '/skill-map' },
@@ -43,14 +44,20 @@ const Sidebar = () => {
     return pathname.startsWith(href);
   };
 
+  // 스니펫 페이지에서 사이드바 슬라이드 아웃
+  const isSnippetsPage = pathname.startsWith('/snippets');
+
   return (
     <aside
       className="flex flex-col py-5 shrink-0 h-screen overflow-y-auto"
       style={{
-        width: 320,
-        minWidth: 320,
+        width: 290,
+        minWidth: 290,
         background: 'rgba(15, 23, 42, 0.85)',
         borderRight: '1px solid rgba(148,163,184,0.08)',
+        transform: isSnippetsPage ? 'translateX(-290px)' : 'translateX(0)',
+        marginRight: isSnippetsPage ? -290 : 0,
+        transition: 'transform 0.25s ease, margin-right 0.25s ease',
       }}
     >
       {/* 로고 — 클릭 시 홈으로 */}

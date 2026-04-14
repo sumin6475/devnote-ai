@@ -4,13 +4,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Tag from '@/components/ui/Tag';
+import { TopicTag } from '@/components/ui/Tag';
 import {
   type Note,
   type Project,
   getNoteTitle,
   getNotePreview,
-  getTagColors,
   formatDate,
 } from '@/lib/types';
 
@@ -24,12 +23,12 @@ type NoteListProps = {
 
 const NOTE_TYPE_LABEL: Record<string, string> = {
   debug: 'DEBUG',
-  learning: 'LEARNING',
+  learning: 'BUILD',
   quick: 'QUICK',
 };
 
 const NOTE_TYPE_COLOR: Record<string, string> = {
-  debug: '#ef4444',
+  debug: '#a84370',
   learning: '#38bdf8',
   quick: '#a78bfa',
 };
@@ -57,7 +56,7 @@ const NoteList = ({ notes, selectedIndex, onSelect, filterProject, onNewNote }: 
     { key: 'all', label: 'All' },
     { key: 'quick', label: 'Quick' },
     { key: 'debug', label: 'Debug' },
-    { key: 'learning', label: 'Learning' },
+    { key: 'learning', label: 'Build' },
   ];
 
   return (
@@ -154,19 +153,18 @@ const NoteList = ({ notes, selectedIndex, onSelect, filterProject, onNewNote }: 
       </div>
 
       {/* 노트 리스트 — 독립 스크롤 */}
-      <div className="flex-1 overflow-y-auto px-[10px] py-[6px]">
+      <div className="flex-1 overflow-y-auto pl-[10px] pr-[4px] py-[6px]">
         {filteredNotes.map((note) => {
           // 원래 notes 배열에서의 인덱스로 selectedIndex 비교
           const originalIndex = notes.indexOf(note);
           const isSelected = selectedIndex === originalIndex;
-          const tagColors = getTagColors(note.topicTags);
           return (
             <div
               key={note.id}
               onClick={() => onSelect(originalIndex)}
-              className="rounded-[10px] mb-[3px] cursor-pointer hover:opacity-90 active:scale-[0.99]"
+              className="rounded-[10px] mb-[3px] cursor-pointer hover:opacity-90 active:scale-[0.99] overflow-hidden"
               style={{
-                padding: '14px 14px 12px',
+                padding: '14px 16px 12px',
                 background: isSelected ? 'rgba(99,102,241,0.07)' : 'transparent',
                 border: isSelected
                   ? '1px solid rgba(99,102,241,0.2)'
@@ -176,7 +174,7 @@ const NoteList = ({ notes, selectedIndex, onSelect, filterProject, onNewNote }: 
             >
               {/* 타입 라벨 + 제목 */}
               <div className="flex items-start justify-between mb-[5px]">
-                <div className="flex-1 mr-2">
+                <div className="flex-1 mr-2 min-w-0">
                   <span
                     className="text-[9px] font-bold uppercase tracking-[0.08em] mr-[6px]"
                     style={{
@@ -187,7 +185,7 @@ const NoteList = ({ notes, selectedIndex, onSelect, filterProject, onNewNote }: 
                     {NOTE_TYPE_LABEL[note.noteType] ?? 'NOTE'}
                   </span>
                   <span
-                    className="text-[13px] leading-[1.35]"
+                    className="text-[13px] leading-[1.35] overflow-hidden text-ellipsis whitespace-nowrap block"
                     style={{
                       fontWeight: 550,
                       color: isSelected ? '#f1f5f9' : '#94a3b8',
@@ -216,9 +214,14 @@ const NoteList = ({ notes, selectedIndex, onSelect, filterProject, onNewNote }: 
 
               {/* 태그 + 날짜 */}
               <div className="flex items-center gap-[5px] flex-wrap">
-                {note.topicTags.map((tag, j) => (
-                  <Tag key={tag} label={tag} colorKey={tagColors[j]} />
+                {note.topicTags.slice(0, 3).map((tag) => (
+                  <TopicTag key={tag} label={tag} />
                 ))}
+                {note.topicTags.length > 3 && (
+                  <span className="text-[11px] font-medium" style={{ color: '#64748b' }}>
+                    +{note.topicTags.length - 3}
+                  </span>
+                )}
                 <span className="ml-auto text-[11px]" style={{ color: '#334155' }}>
                   {formatDate(note.createdAt)}
                 </span>

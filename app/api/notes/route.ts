@@ -31,6 +31,12 @@ export async function GET(request: NextRequest) {
       query = query.eq('project_id', projectId);
     }
 
+    // 스니펫 필터: code_snippet이 있는 노트만
+    const snippetsOnly = searchParams.get('snippets') === 'true';
+    if (snippetsOnly) {
+      query = query.not('code_snippet', 'is', null);
+    }
+
     const { data, error } = await query;
 
     if (error) throw error;

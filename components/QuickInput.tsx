@@ -42,8 +42,9 @@ const QuickInput = ({ projects, onSave, onCreateProject }: QuickInputProps) => {
     }
   };
 
-  // Enter = Save, Shift+Enter = 줄바꿈
+  // Enter = Save, Shift+Enter = 줄바꿈 (한글 IME 조합 중 무시)
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.nativeEvent.isComposing) return;
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSave();

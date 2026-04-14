@@ -3,7 +3,7 @@
 // 노트 폼 — 생성(POST) + 수정(PUT) 겸용
 // 통일된 입력 필드 스타일: 단일 배경 + border, 좌측 accent border 없음
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Note, Project } from '@/lib/types';
 import ProjectDropdown from '@/components/ProjectDropdown';
 import { GlassButton } from '@/components/ui/glass-button';
@@ -15,6 +15,7 @@ type NoteFormProps = {
   projects?: Project[];
   onCreateProject?: (name: string) => Promise<Project>;
   defaultProjectId?: string | null;
+  defaultNoteType?: 'debug' | 'learning';
 };
 
 // 공통 입력 필드 스타일
@@ -31,20 +32,26 @@ const FIELD_STYLE: React.CSSProperties = {
   width: '100%',
 };
 
-const NoteForm = ({ onSave, onCancel, editNote, projects = [], onCreateProject, defaultProjectId }: NoteFormProps) => {
+const NoteForm = ({ onSave, onCancel, editNote, projects = [], onCreateProject, defaultProjectId, defaultNoteType }: NoteFormProps) => {
   const isEditing = !!editNote;
+  // 퀵노트 편집 시 타입 전환 허용 (debug/learning은 타입 전환 불가)
+  const isQuickNoteEdit = isEditing && editNote?.noteType === 'quick';
+  const canSwitchType = !isEditing || isQuickNoteEdit;
 
   // quick 노트 편집 시: P/S/U가 비어있으면 rawContent를 problem에 채움
   const initialProblem = editNote?.problem || (editNote?.noteType === 'quick' ? (editNote?.rawContent ?? '') : '');
   const initialSolution = editNote?.solution ?? '';
   const initialUnderstanding = editNote?.understanding ?? '';
 
-  const [noteType, setNoteType] = useState<'debug' | 'learning'>(
-    editNote?.noteType === 'quick' ? 'debug' : (editNote?.noteType ?? 'debug')
+  const [noteType, setNoteType] = useState<'quick' | 'debug' | 'learning'>(
+    isQuickNoteEdit ? 'quick' : (editNote?.noteType ?? defaultNoteType ?? 'debug')
   );
   const [projectId, setProjectId] = useState<string | null>(editNote?.projectId ?? defaultProjectId ?? null);
   const [showCode, setShowCode] = useState(!!editNote?.codeSnippet);
   const [saving, setSaving] = useState(false);
+
+  // Quick 필드
+  const [rawContent, setRawContent] = useState(editNote?.rawContent ?? '');
 
   // Debug 필드
   const [problem, setProblem] = useState(initialProblem);
@@ -69,9 +76,20 @@ const NoteForm = ({ onSave, onCancel, editNote, projects = [], onCreateProject, 
     setLearnings(updated);
   };
 
-  const isValid = noteType === 'debug'
-    ? problem.trim() && solution.trim() && understanding.trim()
-    : whatIBuilt.trim() && learnings.some((l) => l.trim());
+  // 퀵노트 편집: Learning 탭으로 처음 전환 시 rawContent를 whatIBuilt에 프리필
+  useEffect(() => {
+    if (!isQuickNoteEdit) return;
+    const raw = editNote?.rawContent ?? '';
+    if (noteType === 'learning' && !whatIBuilt.trim() && raw) {
+      setWhatIBuilt(raw);
+    }
+  }, [noteType]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const isValid = noteType === 'quick'
+    ? rawContent.trim()
+    : noteType === 'debug'
+      ? problem.trim() && solution.trim() && understanding.trim()
+      : whatIBuilt.trim() && learnings.some((l) => l.trim());
 
   const handleSave = async () => {
     if (!isValid || saving) return;
@@ -80,13 +98,15 @@ const NoteForm = ({ onSave, onCancel, editNote, projects = [], onCreateProject, 
     try {
       const body = {
         noteType,
-        ...(noteType === 'debug'
-          ? { problem, solution, understanding }
-          : {
-              whatIBuilt,
-              learnings: learnings.filter((l) => l.trim()),
-              source: source.trim() || null,
-            }),
+        ...(noteType === 'quick'
+          ? { rawContent: rawContent }
+          : noteType === 'debug'
+            ? { problem, solution, understanding }
+            : {
+                whatIBuilt,
+                learnings: learnings.filter((l) => l.trim()),
+                source: source.trim() || null,
+              }),
         codeSnippet: showCode && codeSnippet.trim() ? codeSnippet : null,
         projectId,
         skillTags: isEditing ? editNote.skillTags : [],
@@ -120,6 +140,17 @@ const NoteForm = ({ onSave, onCancel, editNote, projects = [], onCreateProject, 
     }
   };
 
+  // focus 시 scrollHeight의 80%까지 확장, blur 시 minHeight로 복귀
+  const handleFocus = useCallback((e: React.FocusEvent<HTMLTextAreaElement>, minH: number) => {
+    const ta = e.target;
+    const expandTo = Math.max(ta.scrollHeight * 0.8, minH);
+    ta.style.height = expandTo + 'px';
+  }, []);
+
+  const handleBlur = useCallback((e: React.FocusEvent<HTMLTextAreaElement>, minH: number) => {
+    e.target.style.height = '';
+  }, []);
+
   return (
     <main className="flex-1 h-screen overflow-y-auto" style={{ background: '#0b1120' }}>
       <div className="max-w-[640px] mx-auto px-5 py-10">
@@ -140,7 +171,7 @@ const NoteForm = ({ onSave, onCancel, editNote, projects = [], onCreateProject, 
           </button>
         </div>
 
-        {/* 타입 선택 탭 */}
+        {/* 타입 선택 탭 — quick 편집 시 3탭, 그 외 2탭 */}
         <div
           className="flex gap-0 rounded-[10px] p-1 mb-7"
           style={{
@@ -148,24 +179,43 @@ const NoteForm = ({ onSave, onCancel, editNote, projects = [], onCreateProject, 
             border: '1px solid rgba(148, 163, 184, 0.12)',
           }}
         >
-          {(['debug', 'learning'] as const).map((type) => (
+          {(isQuickNoteEdit
+            ? (['quick', 'debug', 'learning'] as const)
+            : (['debug', 'learning'] as const)
+          ).map((type) => (
             <button
               key={type}
-              onClick={() => !isEditing && setNoteType(type)}
+              onClick={() => canSwitchType && setNoteType(type)}
               className="flex-1 py-[10px] text-center text-[13px] font-semibold rounded-[7px] border-none"
               style={{
                 background: noteType === type ? '#6366f1' : 'transparent',
                 color: noteType === type ? '#fff' : '#64748b',
                 fontFamily: 'inherit',
-                cursor: isEditing ? 'default' : 'pointer',
-                opacity: isEditing && noteType !== type ? 0.3 : 1,
+                cursor: canSwitchType ? 'pointer' : 'default',
+                opacity: !canSwitchType && noteType !== type ? 0.3 : 1,
                 transition: 'opacity 0.15s',
               }}
             >
-              {type === 'debug' ? 'Debug' : 'Learning'}
+              {type === 'quick' ? 'Quick' : type === 'debug' ? 'Debug' : 'Build'}
             </button>
           ))}
         </div>
+
+        {/* === Quick 필드 (quick 편집 시에만) === */}
+        {noteType === 'quick' && (
+          <FormGroup label="Content">
+            <textarea
+              value={rawContent}
+              onChange={(e) => setRawContent(e.target.value)}
+              onFocus={(e) => handleFocus(e, 180)}
+              onBlur={(e) => handleBlur(e, 180)}
+              placeholder="Paste what you learned, a bug you fixed, or anything..."
+              rows={5}
+              className="resize-y outline-none"
+              style={{ ...FIELD_STYLE, minHeight: 180, transition: 'height 0.2s ease' }}
+            />
+          </FormGroup>
+        )}
 
         {/* === Debug 필드 === */}
         {noteType === 'debug' && (
@@ -174,30 +224,36 @@ const NoteForm = ({ onSave, onCancel, editNote, projects = [], onCreateProject, 
               <textarea
                 value={problem}
                 onChange={(e) => setProblem(e.target.value)}
+                onFocus={(e) => handleFocus(e, 140)}
+                onBlur={(e) => handleBlur(e, 140)}
                 placeholder="What was the problem? What error did you encounter?"
                 rows={2}
                 className="resize-y outline-none"
-                style={{ ...FIELD_STYLE, minHeight: 80 }}
+                style={{ ...FIELD_STYLE, minHeight: 140, transition: 'height 0.2s ease' }}
               />
             </FormGroup>
             <FormGroup label="Solution">
               <textarea
                 value={solution}
                 onChange={(e) => setSolution(e.target.value)}
+                onFocus={(e) => handleFocus(e, 140)}
+                onBlur={(e) => handleBlur(e, 140)}
                 placeholder="How did you fix it? What did you change?"
                 rows={2}
                 className="resize-y outline-none"
-                style={{ ...FIELD_STYLE, minHeight: 80 }}
+                style={{ ...FIELD_STYLE, minHeight: 140, transition: 'height 0.2s ease' }}
               />
             </FormGroup>
             <FormGroup label="Understanding">
               <textarea
                 value={understanding}
                 onChange={(e) => setUnderstanding(e.target.value)}
+                onFocus={(e) => handleFocus(e, 140)}
+                onBlur={(e) => handleBlur(e, 140)}
                 placeholder="Why did it happen? What's the root cause?"
                 rows={2}
                 className="resize-y outline-none"
-                style={{ ...FIELD_STYLE, minHeight: 80 }}
+                style={{ ...FIELD_STYLE, minHeight: 140, transition: 'height 0.2s ease' }}
               />
             </FormGroup>
           </>
@@ -210,10 +266,12 @@ const NoteForm = ({ onSave, onCancel, editNote, projects = [], onCreateProject, 
               <textarea
                 value={whatIBuilt}
                 onChange={(e) => setWhatIBuilt(e.target.value)}
+                onFocus={(e) => handleFocus(e, 140)}
+                onBlur={(e) => handleBlur(e, 140)}
                 placeholder="What did you build or try to implement?"
                 rows={2}
                 className="resize-y outline-none"
-                style={{ ...FIELD_STYLE, minHeight: 80 }}
+                style={{ ...FIELD_STYLE, minHeight: 140, transition: 'height 0.2s ease' }}
               />
             </FormGroup>
             <FormGroup label="What I Learned">

@@ -125,19 +125,19 @@ const NoteDetail = ({ note, onEdit, onDelete, isAnalyzing, onRetryAnalysis }: No
         </div>
       )}
 
-      <div className="max-w-[780px] mx-auto px-9 py-7">
+      <div className="max-w-[810px] mx-auto px-9 py-7">
         {/* 헤더 */}
         <div className="mb-6">
           {/* 타입 라벨 + 액션 버튼 */}
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-[10px]">
             <span
               className="text-[10px] font-bold uppercase tracking-[0.08em]"
               style={{
-                color: note.noteType === 'debug' ? '#ef4444' : note.noteType === 'quick' ? '#a78bfa' : '#38bdf8',
+                color: note.noteType === 'debug' ? '#a84370' : note.noteType === 'quick' ? '#a78bfa' : '#38bdf8',
                 opacity: 0.8,
               }}
             >
-              {note.noteType === 'debug' ? 'Debug Note' : note.noteType === 'quick' ? 'Quick Note' : 'Learning Note'}
+              {note.noteType === 'debug' ? 'Debug Note' : note.noteType === 'quick' ? 'Quick Note' : 'Build Note'}
             </span>
             {/* 수정 / 삭제 버튼 */}
             <div className="flex items-center gap-2">
@@ -208,7 +208,7 @@ const NoteDetail = ({ note, onEdit, onDelete, isAnalyzing, onRetryAnalysis }: No
             {/* Quick Note: rawContent 원본 */}
             {note.rawContent && (
               <div
-                className="rounded-xl whitespace-pre-wrap text-[16px] leading-[1.7]"
+                className="rounded-xl whitespace-pre-wrap text-[14px] leading-[1.7]"
                 style={{
                   background: 'rgba(15, 23, 42, 0.4)',
                   border: '1px solid rgba(148, 163, 184, 0.1)',
@@ -235,35 +235,35 @@ const NoteDetail = ({ note, onEdit, onDelete, isAnalyzing, onRetryAnalysis }: No
                 </div>
                 {note.problem && (
                   <>
-                    <SectionLabel label="Problem" bg="rgba(239,68,68,0.15)" color="#FCA5A5" />
-                    <div className="text-[16px] leading-[1.7]" style={{ color: '#F1F5F9' }}>{note.problem}</div>
+                    <SectionLabel label="Problem" bg="rgba(168,67,112,0.15)" color="#d9a0bb" />
+                    <div className="text-[14px] leading-[1.7]" style={{ color: '#F1F5F9' }}>{note.problem}</div>
                   </>
                 )}
                 {note.solution && (
                   <>
                     <Divider />
                     <SectionLabel label="Solution" bg="rgba(34,197,94,0.15)" color="#86EFAC" />
-                    <div className="text-[16px] leading-[1.7]" style={{ color: '#F1F5F9' }}>{note.solution}</div>
+                    <div className="text-[14px] leading-[1.7]" style={{ color: '#F1F5F9' }}>{note.solution}</div>
                   </>
                 )}
                 {note.understanding && (
                   <>
                     <Divider />
                     <SectionLabel label="Understanding" bg="rgba(129,140,248,0.15)" color="#A5B4FC" />
-                    <div className="text-[16px] leading-[1.7]" style={{ color: '#F1F5F9' }}>{note.understanding}</div>
+                    <div className="text-[14px] leading-[1.7]" style={{ color: '#F1F5F9' }}>{note.understanding}</div>
                   </>
                 )}
                 {note.whatIBuilt && (
                   <>
                     <SectionLabel label="What I Built" bg="rgba(56,189,248,0.15)" color="#7DD3FC" />
-                    <div className="text-[16px] leading-[1.7]" style={{ color: '#F1F5F9' }}>{note.whatIBuilt}</div>
+                    <div className="text-[14px] leading-[1.7]" style={{ color: '#F1F5F9' }}>{note.whatIBuilt}</div>
                   </>
                 )}
                 {note.learnings && note.learnings.length > 0 && (
                   <>
                     <Divider />
                     <SectionLabel label="What I Learned" bg="rgba(167,139,250,0.15)" color="#C4B5FD" />
-                    <ul className="m-0 pl-4 text-[16px] leading-[1.7] flex flex-col gap-[6px]" style={{ listStyleType: 'disc', color: '#F1F5F9' }}>
+                    <ul className="m-0 pl-4 text-[14px] leading-[1.7] flex flex-col gap-[6px]" style={{ listStyleType: 'disc', color: '#F1F5F9' }}>
                       {note.learnings.map((item, i) => <li key={i}>{item}</li>)}
                     </ul>
                   </>
@@ -281,27 +281,27 @@ const NoteDetail = ({ note, onEdit, onDelete, isAnalyzing, onRetryAnalysis }: No
               padding: 24,
             }}
           >
-            <SectionLabel label="Problem" bg="rgba(239,68,68,0.15)" color="#FCA5A5" />
-            <div className="text-[16px] leading-[1.7]" style={{ color: '#F1F5F9' }}>
+            <SectionLabel label="Problem" bg="rgba(168,67,112,0.15)" color="#d9a0bb" />
+            <div className="text-[14px] leading-[1.7]" style={{ color: '#F1F5F9' }}>
               {note.problem}
             </div>
 
             <Divider />
 
             <SectionLabel label="Solution" bg="rgba(34,197,94,0.15)" color="#86EFAC" />
-            <div className="text-[16px] leading-[1.7]" style={{ color: '#F1F5F9' }}>
+            <div className="text-[14px] leading-[1.7]" style={{ color: '#F1F5F9' }}>
               {note.solution}
             </div>
 
             <Divider />
 
             <SectionLabel label="Understanding" bg="rgba(129,140,248,0.15)" color="#A5B4FC" />
-            <div className="text-[16px] leading-[1.7]" style={{ color: '#F1F5F9' }}>
+            <div className="text-[14px] leading-[1.7]" style={{ color: '#F1F5F9' }}>
               {note.understanding}
             </div>
           </div>
         ) : (
-          /* Learning Note — 하나의 카드에 WIB/WIL + Source */
+          /* Build Note — 하나의 카드에 WIB/WIL + Source */
           <div
             className="rounded-xl"
             style={{
@@ -311,7 +311,7 @@ const NoteDetail = ({ note, onEdit, onDelete, isAnalyzing, onRetryAnalysis }: No
             }}
           >
             <SectionLabel label="What I Built" bg="rgba(56,189,248,0.15)" color="#7DD3FC" />
-            <div className="text-[16px] leading-[1.7]" style={{ color: '#F1F5F9' }}>
+            <div className="text-[14px] leading-[1.7]" style={{ color: '#F1F5F9' }}>
               {note.whatIBuilt}
             </div>
 
@@ -319,7 +319,7 @@ const NoteDetail = ({ note, onEdit, onDelete, isAnalyzing, onRetryAnalysis }: No
               <>
                 <Divider />
                 <SectionLabel label="What I Learned" bg="rgba(167,139,250,0.15)" color="#C4B5FD" />
-                <ul className="m-0 pl-4 text-[16px] leading-[1.7] flex flex-col gap-[6px]" style={{ listStyleType: 'disc', color: '#F1F5F9' }}>
+                <ul className="m-0 pl-4 text-[14px] leading-[1.7] flex flex-col gap-[6px]" style={{ listStyleType: 'disc', color: '#F1F5F9' }}>
                   {note.learnings.map((item, i) => (
                     <li key={i}>{item}</li>
                   ))}
@@ -511,7 +511,7 @@ const NoteDetail = ({ note, onEdit, onDelete, isAnalyzing, onRetryAnalysis }: No
 // 섹션 라벨 태그 (pill이 아닌 살짝 라운드)
 const SectionLabel = ({ label, bg, color }: { label: string; bg: string; color: string }) => (
   <span
-    className="inline-block text-[11px] font-semibold uppercase tracking-[0.05em] mb-[10px]"
+    className="inline-block text-[10px] font-semibold uppercase tracking-[0.05em] mb-[10px]"
     style={{
       background: bg,
       color,

@@ -1,7 +1,7 @@
 // DevNote 아이콘 컴포넌트 — SVG 기반, 이모티콘 사용 금지 규칙 준수
 
 type IconProps = {
-  name: 'notes' | 'search' | 'projects' | 'skillmap' | 'dashboard' | 'codereview' | 'plus' | 'star' | 'ai';
+  name: 'notes' | 'search' | 'projects' | 'skillmap' | 'dashboard' | 'codereview' | 'plus' | 'star' | 'ai' | 'snippets';
   size?: number;
   color?: string;
 };
@@ -57,6 +57,14 @@ const Icon = ({ name, size = 18, color = 'currentColor' }: IconProps) => {
       return (
         <svg style={s} viewBox="0 0 20 20" fill="none">
           <path d="M7 6l-4 4 4 4M13 6l4 4-4 4" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+    case 'snippets':
+      return (
+        <svg style={s} viewBox="0 0 20 20" fill="none">
+          <rect x="3" y="2" width="14" height="16" rx="2" stroke={color} strokeWidth="1.5" />
+          <path d="M7 7l-1.5 1.5L7 10M13 7l1.5 1.5L13 10" stroke={color} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M7 14h6" stroke={color} strokeWidth="1.3" strokeLinecap="round" />
         </svg>
       );
     case 'plus':

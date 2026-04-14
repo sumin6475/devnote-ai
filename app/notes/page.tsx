@@ -8,9 +8,11 @@ import { useSearchParams } from 'next/navigation';
 import NoteList from '@/components/NoteList';
 import NoteDetail from '@/components/NoteDetail';
 import NoteForm from '@/components/NoteForm';
+import QuickNoteForm from '@/components/QuickNoteForm';
 import type { Note, Project } from '@/lib/types';
 
 type RightPanelMode = 'detail' | 'create' | 'edit';
+type CreateType = 'quick' | 'debug' | 'learning' | null;
 
 const NotesPage = () => {
   const searchParams = useSearchParams();
@@ -22,6 +24,7 @@ const NotesPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<RightPanelMode>('detail');
+  const [createType, setCreateType] = useState<CreateType>(null);
   const [analyzingNoteIds, setAnalyzingNoteIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -57,6 +60,7 @@ const NotesPage = () => {
 
   const runAiAnalysis = async (noteId: string, noteData: {
     noteType: string;
+    rawContent?: string;
     problem?: string;
     solution?: string;
     understanding?: string;
@@ -99,9 +103,11 @@ const NotesPage = () => {
     setNotes((prev) => [newNote, ...prev]);
     setSelectedIndex(0);
     setMode('detail');
+    setCreateType(null);
 
     runAiAnalysis(newNote.id, {
       noteType: newNote.noteType,
+      rawContent: newNote.rawContent,
       problem: newNote.problem,
       solution: newNote.solution,
       understanding: newNote.understanding,
@@ -166,20 +172,38 @@ const NotesPage = () => {
           onSelect={(i) => {
             setSelectedIndex(i);
             setMode('detail');
+            setCreateType(null);
           }}
           filterProject={filterProject}
-          onNewNote={() => setMode('create')}
+          onNewNote={() => { setMode('create'); setCreateType(null); }}
         />
       )}
 
       {mode === 'create' ? (
-        <NoteForm
-          onSave={handleCreateSaved}
-          onCancel={() => setMode('detail')}
-          projects={projects}
-          onCreateProject={handleCreateProject}
-          defaultProjectId={projectFilter}
-        />
+        createType === null ? (
+          // 타입 선택 화면
+          <TypeChooser
+            onSelect={(type) => setCreateType(type)}
+            onCancel={() => { setMode('detail'); setCreateType(null); }}
+          />
+        ) : createType === 'quick' ? (
+          <QuickNoteForm
+            onSave={handleCreateSaved}
+            onCancel={() => { setMode('detail'); setCreateType(null); }}
+            projects={projects}
+            onCreateProject={handleCreateProject}
+            defaultProjectId={projectFilter}
+          />
+        ) : (
+          <NoteForm
+            defaultNoteType={createType}
+            onSave={handleCreateSaved}
+            onCancel={() => { setMode('detail'); setCreateType(null); }}
+            projects={projects}
+            onCreateProject={handleCreateProject}
+            defaultProjectId={projectFilter}
+          />
+        )
       ) : mode === 'edit' && selectedNote ? (
         <NoteForm
           key={selectedNote.id}
@@ -197,6 +221,7 @@ const NotesPage = () => {
           isAnalyzing={!!selectedNote && analyzingNoteIds.has(selectedNote.id)}
           onRetryAnalysis={selectedNote ? () => runAiAnalysis(selectedNote.id, {
             noteType: selectedNote.noteType,
+            rawContent: selectedNote.rawContent,
             problem: selectedNote.problem,
             solution: selectedNote.solution,
             understanding: selectedNote.understanding,
@@ -210,7 +235,7 @@ const NotesPage = () => {
         <div className="flex-1 flex flex-col items-center justify-center gap-4" style={{ color: '#475569' }}>
           <p>{filterProject ? 'No notes in this project yet.' : 'No notes yet.'}</p>
           <button
-            onClick={() => setMode('create')}
+            onClick={() => { setMode('create'); setCreateType(null); }}
             className="px-5 py-2 text-[13px] font-semibold rounded-lg cursor-pointer border-none hover:opacity-90 active:scale-[0.98]"
             style={{
               background: '#6366f1',
@@ -226,6 +251,89 @@ const NotesPage = () => {
     </>
   );
 };
+
+// --- 타입 선택 화면 ---
+
+const TYPE_OPTIONS = [
+  {
+    type: 'quick' as const,
+    label: 'Quick',
+    description: 'Jot down a quick thought',
+    color: '#a78bfa',
+    bg: 'rgba(167, 139, 250, 0.08)',
+    border: 'rgba(167, 139, 250, 0.15)',
+  },
+  {
+    type: 'debug' as const,
+    label: 'Debug',
+    description: 'Record a bug you fixed',
+    color: '#a84370',
+    bg: 'rgba(168, 67, 112, 0.08)',
+    border: 'rgba(168, 67, 112, 0.15)',
+  },
+  {
+    type: 'learning' as const,
+    label: 'Build',
+    description: 'Capture what you learned building something',
+    color: '#38bdf8',
+    bg: 'rgba(56, 189, 248, 0.08)',
+    border: 'rgba(56, 189, 248, 0.15)',
+  },
+];
+
+const TypeChooser = ({ onSelect, onCancel }: {
+  onSelect: (type: 'quick' | 'debug' | 'learning') => void;
+  onCancel: () => void;
+}) => (
+  <main className="flex-1 h-screen overflow-y-auto" style={{ background: '#0b1120' }}>
+    <div className="max-w-[640px] mx-auto px-5 py-10">
+      {/* 헤더 */}
+      <div className="flex items-center justify-between mb-8">
+        <h1
+          className="text-[20px] font-semibold m-0 tracking-[-0.01em]"
+          style={{ color: '#f1f5f9' }}
+        >
+          New note
+        </h1>
+        <button
+          onClick={onCancel}
+          className="text-[12px] cursor-pointer border-none bg-transparent hover:opacity-80"
+          style={{ color: '#4b5563', fontFamily: 'inherit' }}
+        >
+          Cancel
+        </button>
+      </div>
+
+      <p className="text-[13px] mb-6" style={{ color: '#64748b' }}>
+        Choose a note type
+      </p>
+
+      <div className="flex flex-col gap-3">
+        {TYPE_OPTIONS.map((opt) => (
+          <button
+            key={opt.type}
+            onClick={() => onSelect(opt.type)}
+            className="w-full text-left rounded-xl cursor-pointer hover:opacity-90 active:scale-[0.99]"
+            style={{
+              background: opt.bg,
+              border: `1px solid ${opt.border}`,
+              padding: '18px 20px',
+              fontFamily: 'inherit',
+              transition: 'opacity 0.15s, transform 0.15s',
+            }}
+          >
+            <div className="text-[14px] font-semibold mb-1" style={{ color: opt.color }}>
+              {opt.label}
+            </div>
+            <div className="text-[12px]" style={{ color: '#94a3b8' }}>
+              {opt.description}
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  </main>
+);
 
 const NotesPageWrapper = () => (
   <Suspense fallback={

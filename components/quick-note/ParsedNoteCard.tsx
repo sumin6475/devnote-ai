@@ -146,7 +146,7 @@ const ParsedNoteCard = ({ note, index, projects, onCreateProject, onUpdate, onDe
 
       {/* P/S/U */}
       {[
-        { label: 'Problem', value: note.problem, color: '#FCA5A5', bg: 'rgba(239,68,68,0.15)' },
+        { label: 'Problem', value: note.problem, color: '#d9a0bb', bg: 'rgba(168,67,112,0.15)' },
         { label: 'Solution', value: note.solution, color: '#86EFAC', bg: 'rgba(34,197,94,0.15)' },
         { label: 'Understanding', value: note.understanding, color: '#A5B4FC', bg: 'rgba(129,140,248,0.15)' },
       ].map((field) => (

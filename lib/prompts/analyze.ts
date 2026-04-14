@@ -44,7 +44,8 @@ Foundation:
 
 // 노트 데이터를 받아 유저 메시지 문자열로 변환
 type AnalyzeInput = {
-  noteType: 'debug' | 'learning';
+  noteType: 'debug' | 'learning' | 'quick';
+  rawContent?: string;
   problem?: string;
   solution?: string;
   understanding?: string;
@@ -55,6 +56,17 @@ type AnalyzeInput = {
 };
 
 export const buildUserMessage = (input: AnalyzeInput): string => {
+  // Quick 노트: rawContent 원문을 그대로 전달
+  if (input.noteType === 'quick') {
+    return [
+      'Note Type: Quick',
+      `Content: ${input.rawContent ?? input.problem ?? ''}`,
+      input.codeSnippet ? `Code:\n${input.codeSnippet}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
+  }
+
   if (input.noteType === 'debug') {
     return [
       'Note Type: Debug',

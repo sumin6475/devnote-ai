@@ -134,6 +134,7 @@ const ProjectDropdown = ({
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 onKeyDown={(e) => {
+                  if (e.nativeEvent.isComposing) return;
                   if (e.key === 'Enter') handleCreate();
                   if (e.key === 'Escape') { setCreating(false); setNewName(''); }
                 }}
