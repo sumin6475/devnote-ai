@@ -37,6 +37,18 @@ export async function GET(request: NextRequest) {
       query = query.not('code_snippet', 'is', null);
     }
 
+    // skill tag 필터: skill_tags 배열에 특정 태그 포함된 노트만
+    const skillTag = searchParams.get('skill_tag');
+    if (skillTag) {
+      query = query.contains('skill_tags', [skillTag]);
+    }
+
+    // topic tag 필터: topic_tags 배열에 특정 태그 포함된 노트만
+    const topicTag = searchParams.get('topic_tag');
+    if (topicTag) {
+      query = query.contains('topic_tags', [topicTag]);
+    }
+
     const { data, error } = await query;
 
     if (error) throw error;

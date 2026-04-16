@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { ANALYZE_QUICK_SYSTEM_PROMPT, buildQuickUserMessage } from '@/lib/prompts/analyze-quick';
+import { fetchExistingTopicTags } from '@/lib/existingTags';
 
 const claude = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -20,7 +21,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const userMessage = buildQuickUserMessage(rawContent);
+    const existingTopicTags = await fetchExistingTopicTags();
+    const userMessage = buildQuickUserMessage(rawContent, existingTopicTags);
 
     const message = await claude.messages.create({
       model: 'claude-sonnet-4-20250514',

@@ -12,7 +12,9 @@ The user has written a quick, unstructured note. Your job:
 - For suggestedType: choose "debug" if the note describes fixing a bug, solving an error, or debugging. Choose "learning" if it describes building something, learning a concept, or studying.
 - Extract fields naturally from the text. If a field can't be clearly extracted, set it to null.
 - Skill Tags: select ONLY from the canonical list. If none match, return empty array.
-- Topic Tags: generate 3~5 specific, searchable keywords.
+- Topic Tags: generate 3~5 specific, searchable keywords in kebab-case.
+  - If "Existing Topic Tags" are provided, PREFER reusing matching tags semantically over creating new ones.
+  - Only create new tags when no existing tag fits.
 
 ## Canonical Skill Tag List (for skillTags ONLY)
 
@@ -53,6 +55,9 @@ Foundation:
   "category": "Domain > Area > Specific"
 }`;
 
-export const buildQuickUserMessage = (rawContent: string): string => {
-  return `Here is my quick note:\n\n${rawContent}`;
+export const buildQuickUserMessage = (rawContent: string, existingTopicTags?: string[]): string => {
+  const tagBlock = existingTopicTags && existingTopicTags.length > 0
+    ? `Existing Topic Tags (reuse when possible):\n${existingTopicTags.slice(0, 80).join(', ')}\n\n`
+    : '';
+  return `${tagBlock}Here is my quick note:\n\n${rawContent}`;
 };

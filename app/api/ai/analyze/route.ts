@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { ANALYZE_SYSTEM_PROMPT, buildUserMessage } from '@/lib/prompts/analyze';
+import { fetchExistingTopicTags } from '@/lib/existingTags';
 
 const claude = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -12,8 +13,11 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
+    // 기존 topic tags 가져와서 프롬프트에 주입
+    const existingTopicTags = await fetchExistingTopicTags();
+
     // 유저 메시지 조립
-    const userMessage = buildUserMessage(body);
+    const userMessage = buildUserMessage(body, existingTopicTags);
 
     // Claude API 호출
     const message = await claude.messages.create({

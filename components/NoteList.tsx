@@ -18,6 +18,8 @@ type NoteListProps = {
   selectedIndex: number;
   onSelect: (index: number) => void;
   filterProject?: Project;
+  filterSkillTag?: string | null;
+  filterTopicTag?: string | null;
   onNewNote?: () => void;
 };
 
@@ -35,7 +37,7 @@ const NOTE_TYPE_COLOR: Record<string, string> = {
 
 type TypeFilter = 'all' | 'quick' | 'debug' | 'learning';
 
-const NoteList = ({ notes, selectedIndex, onSelect, filterProject, onNewNote }: NoteListProps) => {
+const NoteList = ({ notes, selectedIndex, onSelect, filterProject, filterSkillTag, filterTopicTag, onNewNote }: NoteListProps) => {
   const router = useRouter();
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
 
@@ -74,7 +76,31 @@ const NoteList = ({ notes, selectedIndex, onSelect, filterProject, onNewNote }: 
         className="flex items-center gap-2 px-5 pt-[18px] pb-[14px] shrink-0"
         style={{ borderBottom: '1px solid rgba(148,163,184,0.06)' }}
       >
-        {filterProject ? (
+        {filterSkillTag || filterTopicTag ? (
+          <>
+            <span
+              className="rounded-full shrink-0"
+              style={{ width: 7, height: 7, background: '#818cf8' }}
+            />
+            <span className="text-[14px] font-semibold overflow-hidden text-ellipsis whitespace-nowrap" style={{ color: '#f1f5f9' }}>
+              {filterSkillTag ?? filterTopicTag}
+            </span>
+            <span className="text-[13px] shrink-0" style={{ color: '#475569' }}>
+              ({notes.length})
+            </span>
+            <button
+              onClick={() => router.push('/notes')}
+              className="ml-auto text-[11px] font-medium px-2 py-[3px] rounded cursor-pointer border-none hover:opacity-80 shrink-0"
+              style={{
+                background: 'rgba(148,163,184,0.08)',
+                color: '#64748b',
+                fontFamily: 'inherit',
+              }}
+            >
+              Clear
+            </button>
+          </>
+        ) : filterProject ? (
           <>
             <span
               className="rounded-full shrink-0"

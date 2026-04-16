@@ -53,13 +53,30 @@ const NoteForm = ({ onSave, onCancel, editNote, projects = [], onCreateProject, 
   // Quick 필드
   const [rawContent, setRawContent] = useState(editNote?.rawContent ?? '');
 
-  // Debug 필드
-  const [problem, setProblem] = useState(initialProblem);
+  // Title — optional. problem/whatIBuilt의 첫 줄로 저장.
+  const extractTitle = (text: string | undefined): { title: string; body: string } => {
+    if (!text) return { title: '', body: '' };
+    const lines = text.split('\n');
+    // 두 번째 줄이 비어있으면 첫 줄을 title로 간주
+    if (lines.length >= 2 && lines[1].trim() === '') {
+      return { title: lines[0], body: lines.slice(2).join('\n') };
+    }
+    return { title: '', body: text };
+  };
+  const initialTitleBody = extractTitle(
+    editNote?.noteType === 'debug' ? editNote?.problem : editNote?.whatIBuilt
+  );
+  const [title, setTitle] = useState(initialTitleBody.title);
+
+  // Debug 필드 (quick→debug 전환 아닐 때만 title/body 분리)
+  const debugInitial = editNote?.noteType === 'debug' ? extractTitle(editNote?.problem) : { title: '', body: initialProblem };
+  const [problem, setProblem] = useState(debugInitial.body || initialProblem);
   const [solution, setSolution] = useState(initialSolution);
   const [understanding, setUnderstanding] = useState(initialUnderstanding);
 
-  // Learning 필드
-  const [whatIBuilt, setWhatIBuilt] = useState(editNote?.whatIBuilt ?? '');
+  // Learning 필드 (learning 편집 시 title/body 분리)
+  const learningInitial = editNote?.noteType === 'learning' ? extractTitle(editNote?.whatIBuilt) : { title: '', body: editNote?.whatIBuilt ?? '' };
+  const [whatIBuilt, setWhatIBuilt] = useState(learningInitial.body);
   const [learnings, setLearnings] = useState<string[]>(
     editNote?.learnings?.length ? editNote.learnings : ['', '']
   );
@@ -96,14 +113,17 @@ const NoteForm = ({ onSave, onCancel, editNote, projects = [], onCreateProject, 
     setSaving(true);
 
     try {
+      // title이 있으면 problem/whatIBuilt 앞에 `title\n\n` 형식으로 prepend
+      const titleLine = title.trim() ? `${title.trim()}\n\n` : '';
+
       const body = {
         noteType,
         ...(noteType === 'quick'
           ? { rawContent: rawContent }
           : noteType === 'debug'
-            ? { problem, solution, understanding }
+            ? { problem: titleLine + problem, solution, understanding }
             : {
-                whatIBuilt,
+                whatIBuilt: titleLine + whatIBuilt,
                 learnings: learnings.filter((l) => l.trim()),
                 source: source.trim() || null,
               }),
@@ -213,6 +233,19 @@ const NoteForm = ({ onSave, onCancel, editNote, projects = [], onCreateProject, 
               rows={5}
               className="resize-y outline-none"
               style={{ ...FIELD_STYLE, minHeight: 180, transition: 'height 0.2s ease' }}
+            />
+          </FormGroup>
+        )}
+
+        {/* Title — Debug/Build 공통 */}
+        {(noteType === 'debug' || noteType === 'learning') && (
+          <FormGroup label="Title" optional>
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Give it a short title..."
+              className="outline-none"
+              style={{ ...FIELD_STYLE, padding: '10px 16px', fontSize: 14 }}
             />
           </FormGroup>
         )}

@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { PARSE_NOTES_SYSTEM_PROMPT } from '@/lib/prompts/parse-notes';
+import { fetchExistingTopicTags } from '@/lib/existingTags';
 
 const claude = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -22,12 +23,18 @@ export async function POST(request: NextRequest) {
     // 5000자 제한
     const trimmed = rawText.slice(0, 5000);
 
+    // 기존 topic tags를 프롬프트에 prepend
+    const existingTopicTags = await fetchExistingTopicTags();
+    const tagBlock = existingTopicTags.length > 0
+      ? `Existing Topic Tags (reuse when possible, kebab-case):\n${existingTopicTags.slice(0, 80).join(', ')}\n\n---\n\n`
+      : '';
+
     const message = await claude.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 4096,
       temperature: 0,
       system: PARSE_NOTES_SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: trimmed }],
+      messages: [{ role: 'user', content: tagBlock + trimmed }],
     });
 
     const textBlock = message.content.find((block) => block.type === 'text');

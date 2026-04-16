@@ -3,6 +3,7 @@
 // Skill Map 페이지 — 19개 canonical skill 커버리지 시각화
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 type SkillData = {
   name: string;
@@ -188,14 +189,22 @@ const MetricCard = ({ label, value }: { label: string; value: string }) => (
 );
 
 const SkillCard = ({ skill }: { skill: SkillData }) => {
+  const router = useRouter();
+  // 태그 클릭 시 해당 태그가 달린 노트 목록으로 이동
+  const handleClick = () => {
+    router.push(`/notes?skill_tag=${encodeURIComponent(skill.name)}`);
+  };
+
   if (skill.covered) {
     return (
       <div
-        className="rounded-lg"
+        onClick={handleClick}
+        className="rounded-lg cursor-pointer hover:opacity-90 active:scale-[0.99]"
         style={{
           background: 'rgba(99, 102, 241, 0.06)',
           border: '1px solid rgba(99, 102, 241, 0.15)',
           padding: '14px 16px',
+          transition: 'opacity 0.15s, transform 0.15s',
         }}
       >
         <div className="flex items-center gap-2 mb-1">
@@ -214,11 +223,13 @@ const SkillCard = ({ skill }: { skill: SkillData }) => {
 
   return (
     <div
-      className="rounded-lg"
+      onClick={handleClick}
+      className="rounded-lg cursor-pointer hover:opacity-90 active:scale-[0.99]"
       style={{
         background: 'transparent',
         border: '1px solid rgba(148, 163, 184, 0.06)',
         padding: '14px 16px',
+        transition: 'opacity 0.15s, transform 0.15s',
       }}
     >
       <div className="flex items-center gap-2 mb-1">

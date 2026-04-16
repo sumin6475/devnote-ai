@@ -6,7 +6,11 @@ export const ANALYZE_SYSTEM_PROMPT = `You are an AI that analyzes developer lear
 ## Rules
 1. ALWAYS respond in English, regardless of the input language.
 2. Skill Tags: select ONLY from the canonical list below. If the note content does not clearly relate to any skill in the list, return an empty array. Do NOT force a match.
-3. Topic Tags: generate 3~5 specific, searchable keywords that describe what this note is concretely about. These are free-form.
+3. Topic Tags: generate 3~5 specific, searchable keywords in kebab-case that describe what this note is concretely about.
+   - If a list of "Existing Topic Tags" is provided in the user message, PREFER reusing tags from that list when they match the note's concept.
+   - Match semantically, not just by exact string (e.g., if existing list has "og-tag", reuse it instead of creating "open-graph-tag").
+   - Only create a new tag if no existing tag fits the concept well.
+   - Always use kebab-case for new tags (e.g., "react-hooks", not "React Hooks" or "react_hooks").
 4. Category: use format "Domain > Area > Specific" (e.g., "Frontend > Web Standards > Open Graph").
 
 ## Canonical Skill Tag List (for skillTags field ONLY)
@@ -55,10 +59,20 @@ type AnalyzeInput = {
   codeSnippet?: string;
 };
 
-export const buildUserMessage = (input: AnalyzeInput): string => {
+// 기존 topic_tags 목록을 프롬프트 상단에 주입하는 헬퍼
+const buildExistingTagsBlock = (existingTags?: string[]): string => {
+  if (!existingTags || existingTags.length === 0) return '';
+  // 너무 많으면 토큰 낭비 → 최대 80개로 제한
+  const capped = existingTags.slice(0, 80);
+  return `Existing Topic Tags (reuse when possible):\n${capped.join(', ')}\n\n`;
+};
+
+export const buildUserMessage = (input: AnalyzeInput, existingTopicTags?: string[]): string => {
+  const tagBlock = buildExistingTagsBlock(existingTopicTags);
+
   // Quick 노트: rawContent 원문을 그대로 전달
   if (input.noteType === 'quick') {
-    return [
+    return tagBlock + [
       'Note Type: Quick',
       `Content: ${input.rawContent ?? input.problem ?? ''}`,
       input.codeSnippet ? `Code:\n${input.codeSnippet}` : '',
@@ -68,7 +82,7 @@ export const buildUserMessage = (input: AnalyzeInput): string => {
   }
 
   if (input.noteType === 'debug') {
-    return [
+    return tagBlock + [
       'Note Type: Debug',
       `Problem: ${input.problem}`,
       `Solution: ${input.solution}`,
@@ -79,7 +93,7 @@ export const buildUserMessage = (input: AnalyzeInput): string => {
       .join('\n');
   }
 
-  return [
+  return tagBlock + [
     'Note Type: Learning',
     `What I Built: ${input.whatIBuilt}`,
     `What I Learned:\n${(input.learnings ?? []).map((l, i) => `${i + 1}. ${l}`).join('\n')}`,

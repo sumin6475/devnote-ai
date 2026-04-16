@@ -17,6 +17,8 @@ type CreateType = 'quick' | 'debug' | 'learning' | null;
 const NotesPage = () => {
   const searchParams = useSearchParams();
   const projectFilter = searchParams.get('project');
+  const skillTagFilter = searchParams.get('skill_tag');
+  const topicTagFilter = searchParams.get('topic_tag');
 
   const [notes, setNotes] = useState<Note[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -30,9 +32,11 @@ const NotesPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const notesUrl = projectFilter
-          ? `/api/notes?project=${projectFilter}`
-          : '/api/notes';
+        const params = new URLSearchParams();
+        if (projectFilter) params.set('project', projectFilter);
+        if (skillTagFilter) params.set('skill_tag', skillTagFilter);
+        if (topicTagFilter) params.set('topic_tag', topicTagFilter);
+        const notesUrl = params.toString() ? `/api/notes?${params}` : '/api/notes';
 
         const [notesRes, projectsRes] = await Promise.all([
           fetch(notesUrl),
@@ -53,7 +57,7 @@ const NotesPage = () => {
       }
     };
     fetchData();
-  }, [projectFilter]);
+  }, [projectFilter, skillTagFilter, topicTagFilter]);
 
   const selectedNote = notes[selectedIndex] ?? null;
   const filterProject = projects.find((p) => p.id === projectFilter);
@@ -175,6 +179,8 @@ const NotesPage = () => {
             setCreateType(null);
           }}
           filterProject={filterProject}
+          filterSkillTag={skillTagFilter}
+          filterTopicTag={topicTagFilter}
           onNewNote={() => { setMode('create'); setCreateType(null); }}
         />
       )}
@@ -233,7 +239,15 @@ const NotesPage = () => {
         />
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center gap-4" style={{ color: '#475569' }}>
-          <p>{filterProject ? 'No notes in this project yet.' : 'No notes yet.'}</p>
+          <p>
+            {skillTagFilter
+              ? `No notes tagged "${skillTagFilter}" yet.`
+              : topicTagFilter
+                ? `No notes tagged "${topicTagFilter}" yet.`
+                : filterProject
+                  ? 'No notes in this project yet.'
+                  : 'No notes yet.'}
+          </p>
           <button
             onClick={() => { setMode('create'); setCreateType(null); }}
             className="px-5 py-2 text-[13px] font-semibold rounded-lg cursor-pointer border-none hover:opacity-90 active:scale-[0.98]"
