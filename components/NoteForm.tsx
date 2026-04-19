@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Note, Project } from '@/lib/types';
 import ProjectDropdown from '@/components/ProjectDropdown';
 import { GlassButton } from '@/components/ui/glass-button';
+import CodeEditor from '@/components/ui/code-editor/CodeEditor';
 
 type NoteFormProps = {
   onSave: (note: Note) => void;
@@ -391,20 +392,14 @@ const NoteForm = ({ onSave, onCancel, editNote, projects = [], onCreateProject, 
         </button>
 
         {showCode && (
-          <textarea
-            value={codeSnippet}
-            onChange={(e) => setCodeSnippet(e.target.value)}
-            placeholder="Paste related code here..."
-            className="w-full mt-3 resize-y outline-none"
-            style={{
-              ...FIELD_STYLE,
-              fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-              fontSize: '12.5px',
-              color: '#94a3b8',
-              lineHeight: 1.7,
-              minHeight: 80,
-            }}
-          />
+          <div className="mt-3">
+            <CodeEditor
+              value={codeSnippet}
+              onChange={setCodeSnippet}
+              placeholder="Paste related code here..."
+              minHeight="120px"
+            />
+          </div>
         )}
 
         {/* 프로젝트 선택 */}

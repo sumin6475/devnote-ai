@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import SnippetList from '@/components/snippets/SnippetList';
 import SnippetNote from '@/components/snippets/SnippetNote';
 import SnippetCode from '@/components/snippets/SnippetCode';
-import LineNumberTextarea from '@/components/ui/LineNumberTextarea';
+import CodeEditor from '@/components/ui/code-editor/CodeEditor';
 import type { Note } from '@/lib/types';
 
 type Mode = 'view' | 'create' | 'edit';
@@ -218,22 +218,15 @@ const SnippetsPage = () => {
             </div>
           </div>
 
-          {/* 코드 입력 패널 — 라인 번호 포함 */}
+          {/* 코드 입력 패널 — CodeMirror 에디터 */}
           <div className="flex-1 flex flex-col h-screen" style={{ background: '#0F172A' }}>
-            <div className="flex items-center px-4 pt-6 pb-3">
-              <label
-                className="text-[11px] uppercase tracking-[0.05em]"
-                style={{ color: '#64748b' }}
-              >
-                Code
-              </label>
-            </div>
-            <div className="flex-1 px-4 pb-4">
-              <LineNumberTextarea
+            <div className="flex-1 p-4">
+              <CodeEditor
                 value={editCode}
                 onChange={setEditCode}
                 placeholder="Paste your code here..."
-                className="h-full"
+                minHeight="200px"
+                maxHeight="calc(100vh - 80px)"
               />
             </div>
           </div>
